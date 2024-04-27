@@ -53,7 +53,6 @@ const tasks = [
     tasks: [],
   },
 ];
-
-const rootTask: ITask = { tasks };
+const rootTask = ref({ tasks });
 
 </script>

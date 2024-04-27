@@ -25,80 +25,106 @@ describe('ReorderTask.vue', () => {
         return subComponents.findIndex((taskComp: any) => taskComp.props('task').name === name);
     }
 
+    async function clickUpButton(comp: any) {
+        const button = comp.find("#up-reorder");
+        await button.trigger('click');
+    }
+
+    async function clickDownButton(comp: any) {
+        const button = comp.find("#down-reorder");
+        await button.trigger('click');
+    }
+
 
 
     describe('interact with main list', () => {
         it('moving first up : does nothing', async () => {
+            const taskName = '1';
             const wrapper = await createWrapperWithData();
-            const firstTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, '1');
+            const firstTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, taskName);
             assert(!!firstTaskReorderComp);
-            firstTaskReorderComp.vm.up();
-            const newIndex = getTaskIndexByName(wrapper, '1');
+            await clickUpButton(firstTaskReorderComp);
+            expect(firstTaskReorderComp.emitted().upOrder).toBeDefined();
+            const newIndex = getTaskIndexByName(wrapper, taskName);
             expect(newIndex).toEqual(0);
         });
 
         it('moving last down : does nothing', async () => {
+            const taskName = '2';
             const wrapper = await createWrapperWithData();
-            const lastTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, '2');
+            const lastTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, taskName);
             assert(!!lastTaskReorderComp);
-            lastTaskReorderComp.vm.down();
-            const newIndex = getTaskIndexByName(wrapper, '2');
+            await clickDownButton(lastTaskReorderComp);
+            expect(lastTaskReorderComp.emitted().downOrder).toBeDefined();
+            const newIndex = getTaskIndexByName(wrapper, taskName);
             expect(newIndex).toEqual(4);
         });
 
         it('moving first down : goes down', async () => {
+            const taskName = '1';
             const wrapper = await createWrapperWithData();
-            const firstTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, '1');
+            const firstTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, taskName);
             assert(!!firstTaskReorderComp);
-            firstTaskReorderComp.vm.down();
-            const newIndex = getTaskIndexByName(wrapper, '1');
-            expect(newIndex).toEqual(4);
+            await clickDownButton(firstTaskReorderComp);
+            expect(firstTaskReorderComp.emitted().downOrder).toBeDefined();
+            const newIndex = getTaskIndexByName(wrapper, taskName);
+            expect(newIndex).toEqual(1);
         });
 
         it('moving last up : goes up', async () => {
+            const taskName = '2';
             const wrapper = await createWrapperWithData();
-            const lastTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, '2');
+            const lastTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, taskName);
             assert(!!lastTaskReorderComp);
-            lastTaskReorderComp.vm.up();
-            const newIndex = getTaskIndexByName(wrapper, '2');
+            await clickUpButton(lastTaskReorderComp);
+            expect(lastTaskReorderComp.emitted().upOrder).toBeDefined();
+            const newIndex = getTaskIndexByName(wrapper, taskName);
             expect(newIndex).toEqual(0);
         });
     });
 
     describe('interact with sub-list', () => {
         it('moving sublist first up : does nothing', async () => {
+            const taskName = '1.1';
             const wrapper = await createWrapperWithData();
-            const firstTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, '1.1');
+            const firstTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, taskName);
             assert(!!firstTaskReorderComp);
-            firstTaskReorderComp.vm.up();
-            const newIndex = getTaskIndexByName(wrapper, '1');
+            await clickUpButton(firstTaskReorderComp);
+            expect(firstTaskReorderComp.emitted().upOrder).toBeDefined();
+            const newIndex = getTaskIndexByName(wrapper, taskName);
             expect(newIndex).toEqual(1);
         });
 
         it('moving sublist last down : does nothing', async () => {
+            const taskName = '1.2';
             const wrapper = await createWrapperWithData();
-            const lastTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, '1.2');
+            const lastTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, taskName);
             assert(!!lastTaskReorderComp);
-            lastTaskReorderComp.vm.down();
-            const newIndex = getTaskIndexByName(wrapper, '2');
+            await clickDownButton(lastTaskReorderComp);
+            expect(lastTaskReorderComp.emitted().downOrder).toBeDefined();
+            const newIndex = getTaskIndexByName(wrapper, taskName);
             expect(newIndex).toEqual(2);
         });
 
         it('moving sublist first down : goes down', async () => {
+            const taskName = '1.1';
             const wrapper = await createWrapperWithData();
-            const firstTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, '1.1');
+            const firstTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, taskName);
             assert(!!firstTaskReorderComp);
-            firstTaskReorderComp.vm.down();
-            const newIndex = getTaskIndexByName(wrapper, '1');
-            expect(newIndex).toEqual(2);
+            await clickDownButton(firstTaskReorderComp);
+            expect(firstTaskReorderComp.emitted().downOrder).toBeDefined();
+            const newIndex = getTaskIndexByName(wrapper, taskName);
+            expect(newIndex).toEqual(3);
         });
 
         it('moving sublist last up : goes up', async () => {
+            const taskName = '1.2';
             const wrapper = await createWrapperWithData();
-            const lastTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, '1.2');
+            const lastTaskReorderComp = getComponentByTaskName(wrapper, ReorderTask, taskName);
             assert(!!lastTaskReorderComp);
-            lastTaskReorderComp.vm.up();
-            const newIndex = getTaskIndexByName(wrapper, '2');
+            await clickUpButton(lastTaskReorderComp);
+            expect(lastTaskReorderComp.emitted().upOrder).toBeDefined();
+            const newIndex = getTaskIndexByName(wrapper, taskName);
             expect(newIndex).toEqual(1);
         });
 

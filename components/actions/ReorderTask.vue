@@ -1,6 +1,6 @@
 <template>
-    <button type="button" id="up-reorder" @click="up">up</button> / <button type="button" id="down-reorder"
-        @click="down">down</button>
+    <button type="button" id="up-reorder" @click="$emit('upOrder', task)">up</button> / <button type="button"
+        id="down-reorder" @click="$emit('downOrder', task)">down</button>
 </template>
 
 <script setup lang="ts">
@@ -12,12 +12,6 @@ import type { Task } from '~/Interfaces';
  * 
  */
 defineProps<{ task: Task }>();
-
-function up() {
-    console.log("goes up");
-}
-function down() {
-    console.log("goes down");
-}
+defineEmits(['upOrder', 'downOrder']);
 
 </script>

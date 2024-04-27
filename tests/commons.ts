@@ -1,6 +1,8 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { TaskStatus, type RootTask, type Task } from "~/Interfaces";
 import TasksList from "~/components/TasksList.vue";
+import { ref } from 'vue';
+
 /**
  * - 1
  *  - 1.1
@@ -10,7 +12,7 @@ import TasksList from "~/components/TasksList.vue";
  * @returns 
  */
 export async function createWrapperWithData() {
-    const subtasks = [
+    const tasks = ref([
         {
             id: 1,
             name: "1",
@@ -43,13 +45,12 @@ export async function createWrapperWithData() {
             status: TaskStatus.DONE,
             tasks: [],
         },
-    ];
-    const task: RootTask = {
-        tasks: subtasks
-    };
+    ]);
+    const rootTask = { tasks: tasks.value };
+
     return mountSuspended(TasksList, {
         props: {
-            task,
+            task: rootTask,
         },
     });
 };
