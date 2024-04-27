@@ -7,9 +7,9 @@
     ----
     <!-- ActionsMenu -->
     <div>
-      <ReorderTask />
-      <UpdateTaskStatus />
-      <DeleteTask />
+      <ReorderTask :task="task" />
+      <UpdateTaskStatus :task="task" />
+      <DeleteTask :task="task" />
     </div>
     ________
   </div>
@@ -33,5 +33,4 @@ import DeleteTask from './actions/DeleteTask.vue';
 import type { Task } from '~/Interfaces';
 
 defineProps<{ task: Task }>();
-
 </script>

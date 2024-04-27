@@ -5,6 +5,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime';
 import TasksList from '@/components/TasksList.vue';
 import { TaskStatus, type ITask, type RootTask } from '@/Interfaces';
 import TaskManager from '~/components/TaskManager.vue';
+import { createWrapperWithData, getIdsOrder } from './commons';
 
 describe('TasksList.vue', () => {
     async function createWrapper(task: ITask) {
@@ -28,46 +29,9 @@ describe('TasksList.vue', () => {
 
     it('renders subtasks correctly', async () => {
         // mock
-        const subtasks = [
-            {
-                id: 1,
-                name: "1",
-                status: TaskStatus.CREATED,
-                tasks: [
-                    {
-                        id: 4,
-                        name: "1.1",
-                        status: TaskStatus.CREATED,
-                        tasks: [],
-                    },
-                    {
-                        id: 2,
-                        name: "1.2",
-                        status: TaskStatus.DONE,
-                        tasks: [
-                            {
-                                id: 5,
-                                name: "1.2.1",
-                                status: TaskStatus.DONE,
-                                tasks: [],
-                            },
-                        ],
-                    },
-                ],
-            },
-            {
-                id: 3,
-                name: "2",
-                status: TaskStatus.DONE,
-                tasks: [],
-            },
-        ];
-        const subTaskIds = [1, 4, 2, 5, 3];
-        const task: RootTask = {
-            tasks: subtasks
-        };
+        const subTaskIds = getIdsOrder();
 
-        const wrapper = await createWrapper(task);
+        const wrapper = await createWrapperWithData();
         // expecting 2 level list
         const listComponents = wrapper.findAllComponents(TasksList);
         expect(listComponents).toHaveLength(2);
