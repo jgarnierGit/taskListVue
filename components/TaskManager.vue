@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div>{{ task.name }}
     ________
     <EditTaskName />
     ----
@@ -7,9 +7,9 @@
     ----
     <!-- ActionsMenu -->
     <div>
-      <ReorderTask/>
-      <UpdateTaskStatus/>
-      <DeleteTask/>
+      <ReorderTask />
+      <UpdateTaskStatus />
+      <DeleteTask />
     </div>
     ________
   </div>
@@ -18,12 +18,9 @@
 <script setup lang="ts">
 /**
  * Task Component
- * @description A task has the following properties:
- *  - a name
- *  - a status (Created / Done) : 
- *     - edition is disabled if one of its childs is still Created.
- *     - switch to Done when its last child is Done.
- *  - a sublist of Task
+ * @description A TaskManager has the following behaviors:
+ *  - edition is disabled if one of its childs is still created.
+ *  - switch to {TaskStatus.Done} when its last child is done.
  *  - a contextual editor menu
  * 
  */
@@ -33,5 +30,8 @@ import EditTaskName from './actions/EditTaskName.vue';
 import UpdateTaskStatus from './actions/UpdateTaskStatus.vue';
 import ReorderTask from './actions/ReorderTask.vue';
 import DeleteTask from './actions/DeleteTask.vue';
+import type { Task } from '~/Interfaces';
+
+defineProps<{ task: Task }>();
 
 </script>

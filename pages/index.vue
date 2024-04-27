@@ -1,14 +1,12 @@
 <template>
-    <div>
-      <h1>Tasks list</h1>
-      <ImportTasks />
-      <ExportTasks />
-      --------
-      <AddTask />
-        <li v-for="item in tasks">
-          <Task />
-      </li>
-    </div>
+  <div>
+    <h1>Tasks list</h1>
+    <ImportTasks />
+    <ExportTasks />
+    --------
+    <AddTask />
+    <TasksList :task="rootTask" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -18,8 +16,44 @@
  * 
  */
 
-import { ref } from 'vue';
+import { TaskStatus, type ITask } from '~/Interfaces';
 import AddTask from '~/components/actions/AddTask.vue';
-const tasks = ref(new Array<{}>(2));
+// mock test
+const tasks = [
+  {
+    id: 1,
+    name: "1",
+    status: TaskStatus.CREATED,
+    tasks: [
+      {
+        id: 4,
+        name: "1.1",
+        status: TaskStatus.CREATED,
+        tasks: [],
+      },
+      {
+        id: 2,
+        name: "1.2",
+        status: TaskStatus.DONE,
+        tasks: [
+          {
+            id: 5,
+            name: "1.2.1",
+            status: TaskStatus.DONE,
+            tasks: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 3,
+    name: "2",
+    status: TaskStatus.DONE,
+    tasks: [],
+  },
+];
+
+const rootTask: ITask = { tasks };
 
 </script>

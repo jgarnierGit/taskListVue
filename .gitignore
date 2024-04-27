@@ -23,7 +23,7 @@ logs
 .env.*
 !.env.example
 
-
-
 devlog.md
 package-lock.json
+
+.vscode
