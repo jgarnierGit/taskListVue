@@ -1,5 +1,5 @@
 <template>
-up / down    
+    up / down
 </template>
 
 <script setup lang="ts">

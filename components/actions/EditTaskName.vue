@@ -1,13 +1,8 @@
 <template>
- Name editor :
+  Name editor :
   <span>
     <span v-if="isDisabled">{{ inputValue }}</span>
-    <input
-      type="text"
-      :value="inputValue"
-      :disabled="isDisabled"
-      v-if="!isDisabled"
-    />
+    <input type="text" :value="inputValue" :disabled="isDisabled" v-if="!isDisabled" />
   </span>
 </template>
 
@@ -24,6 +19,6 @@ const inputValue = 'Default Value';
 const isDisabled = ref(true);
 
 function enableInput() {
-    console.log("switching edition name");
+  console.log("switching edition name");
 }
 </script>
