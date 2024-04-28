@@ -4,20 +4,16 @@
             <template v-slot:activator="{ props }">
                 <v-list-item v-bind="props">
                     <TaskManager :task="subTask">
-                        <ReorderTask :task="subTask" @up-order="orderingUp" @down-order="orderingDown" />
-                        <UpdateTaskStatus />
-                        <DeleteTask />
+                        <TaskMenu :task="subTask" :index="subTask.id" :upOrderFn="orderingUp"
+                            :downOrderFn="orderingDown" />
                     </TaskManager>
                 </v-list-item>
             </template>
             <TasksList :task="subTask" />
         </v-list-group>
-        <v-list-item v-else
-            :title="subTask.name"><!-- FIXME find a way to remove duplication all while keepin direct hierarchy  with ReorderTask-->
+        <v-list-item v-else>
             <TaskManager :task="subTask">
-                <ReorderTask :task="subTask" @up-order="orderingUp" @down-order="orderingDown" />
-                <UpdateTaskStatus />
-                <DeleteTask />
+                <TaskMenu :task="subTask" :index="subTask.id" :upOrderFn="orderingUp" :downOrderFn="orderingDown" />
             </TaskManager>
         </v-list-item>
     </v-list>
@@ -31,17 +27,14 @@
  *  - subLists
  */
 
-import type { ITask, Task } from '~/Interfaces';
-import UpdateTaskStatus from './actions/UpdateTaskStatus.vue';
-import ReorderTask from './actions/ReorderTask.vue';
-import DeleteTask from './actions/DeleteTask.vue';
+import type { ITask } from '~/Interfaces';
 
 const props = defineProps<{ task: ITask }>();
 
 const taskchilds = ref(props.task.tasks);
 
-function orderingUp(task: Task) {
-    const index = props.task.tasks.findIndex((t) => t.id === task.id); // TODO optimization : use index from v-for
+function orderingUp(taskId: number) {
+    const index = props.task.tasks.findIndex((t) => t.id === taskId);
     if (index <= 0) {
         return;
     }
@@ -51,8 +44,8 @@ function orderingUp(task: Task) {
     props.task.tasks[index] = prevTask;
 }
 
-function orderingDown(task: Task) {
-    const index = props.task.tasks.findIndex((t) => t.id === task.id); // TODO use index for v-for to optimize
+function orderingDown(taskId: number) {
+    const index = props.task.tasks.findIndex((t) => t.id === taskId);
     if (index >= props.task.tasks.length - 1) {
         return;
     }
@@ -61,5 +54,4 @@ function orderingDown(task: Task) {
     props.task.tasks[index + 1] = currentTask;
     props.task.tasks[index] = prevTask;
 }
-
 </script>

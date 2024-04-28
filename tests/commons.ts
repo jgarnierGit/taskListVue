@@ -55,6 +55,18 @@ export async function createWrapperWithData() {
     });
 };
 
+export function getTaskIdByName(name: string): number {
+    switch (name) {
+        case '1': return 1;
+        case '1.1': return 4;
+        case '1.2': return 2;
+        case '1.2.1': return 5;
+        case '2': return 3;
+        default:
+            return -1;
+    }
+}
+
 export function getIdsOrder() {
     return [1, 4, 2, 5, 3];
 }

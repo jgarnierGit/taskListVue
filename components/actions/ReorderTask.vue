@@ -1,6 +1,6 @@
 <template>
-    <button type="button" id="up-reorder" @click="$emit('upOrder', task)">up</button> / <button type="button"
-        id="down-reorder" @click="$emit('downOrder', task)">down</button>
+    <v-btn density="compact" id="up-reorder" @click="emitUpOrder"><v-icon>$transferUp </v-icon></v-btn>
+    <v-btn density="compact" id="down-reorder" @click="emitDownOrder"><v-icon>$transferDown</v-icon></v-btn>
 </template>
 
 <script setup lang="ts">
@@ -11,7 +11,15 @@ import type { Task } from '~/Interfaces';
  * @description Moves targeted task at the desired position of the current sublist.
  * 
  */
-defineProps<{ task: Task }>();
-defineEmits(['upOrder', 'downOrder']);
+const props = defineProps<{ task: Task }>();
+const emit = defineEmits(['upOrder', 'downOrder']);
+
+function emitUpOrder() {
+    emit('upOrder', props.task.id);
+}
+
+function emitDownOrder() {
+    emit('downOrder', props.task.id);
+}
 
 </script>
