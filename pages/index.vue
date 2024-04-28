@@ -4,15 +4,11 @@
       <v-toolbar-title>
         Tasks list
       </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon @click="createItem()">$plus</v-icon>
-      </v-btn>
     </v-toolbar>
     <ImportTasks />
     <ExportTasks />
-    --------
-    <AddTask />
+    Start creating by clicking
+    <v-divider :thickness="5" />
     <TasksList :task="rootTask" />
   </v-card>
 </template>
@@ -25,7 +21,7 @@
  */
 
 import { TaskStatus, type ITask } from '~/Interfaces';
-import AddTask from '~/components/actions/AddTask.vue';
+
 // mock test
 const tasks = [
   {
@@ -61,10 +57,7 @@ const tasks = [
     tasks: [],
   },
 ];
+const tasksEmpty = ref([]);
 const rootTask = ref({ tasks });
-
-function createItem() {
-  console.log("TODO, link to add component");
-}
 
 </script>

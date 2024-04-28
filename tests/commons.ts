@@ -56,6 +56,16 @@ export async function createWrapperWithData() {
     });
 };
 
+export async function createWrapperEmpty() {
+    const tasks = ref([]);
+    const rootTask = { tasks: tasks.value };
+    return mountSuspended(TasksList, {
+        props: {
+            task: rootTask,
+        },
+    });
+}
+
 export function getTaskIdByName(name: string): string {
     switch (name) {
         case '1': return '1';

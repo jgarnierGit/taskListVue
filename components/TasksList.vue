@@ -1,6 +1,7 @@
 <template>
+    <AddTask @add-task="addTaskRoot" id="add-inline-root" v-if="!taskchilds.length" />
     <v-list dense dark v-for="(subTask, index) in taskchilds" :key="subTask.id">
-        <AddInlineTask :taskId="subTask.id" @add-task="addTaskBefore" v-if="!index"
+        <AddTask :taskId="subTask.id" @add-task-to="addTaskBefore" v-if="!index"
             :id="'add-inline-before-' + subTask.id" />
         <v-list-group v-if="!!subTask.tasks.length">
             <template v-slot:activator="{ props }">
@@ -13,12 +14,12 @@
             </template>
             <TasksList :task="subTask" />
         </v-list-group>
-        <AddInlineTask v-else :taskId="subTask.id" @add-task="addTaskChild">
+        <AddTask v-else :taskId="subTask.id" @add-task-to="addTaskChild">
             <TaskManager :task="subTask">
                 <TaskMenu :task="subTask" :index="subTask.id" :upOrderFn="orderingUp" :downOrderFn="orderingDown" />
             </TaskManager>
-        </AddInlineTask>
-        <AddInlineTask :taskId="subTask.id" @add-task="addTaskAfter" :id="'add-inline-after-' + subTask.id" />
+        </AddTask>
+        <AddTask :taskId="subTask.id" @add-task-to="addTaskAfter" :id="'add-inline-after-' + subTask.id" />
     </v-list>
 </template>
 
@@ -31,7 +32,7 @@
  */
 
 import { TaskStatus, type ITask } from '~/Interfaces';
-import AddInlineTask from './actions/AddInlineTask.vue';
+import AddTask from './actions/AddTask.vue';
 import { v4 as uuidv4 } from 'uuid';
 
 const props = defineProps<{ task: ITask }>();
@@ -63,19 +64,35 @@ function orderingDown(taskId: string) {
 function addTaskAfter(taskId: string) {
     const newTask = { id: uuidv4(), name: 'New task', tasks: [], status: TaskStatus.CREATED };
     const index = props.task.tasks.findIndex((t) => t.id === taskId);
+
+    if (index === -1) {
+        throw new Error(`Task ${taskId} not found`);
+    }
     props.task.tasks.splice(index + 1, 0, newTask);
 }
 
 function addTaskBefore(taskId: string) {
     const newTask = { id: uuidv4(), name: 'New task', tasks: [], status: TaskStatus.CREATED };
     const index = props.task.tasks.findIndex((t) => t.id === taskId);
+
+    if (index === -1) {
+        throw new Error(`Task ${taskId} not found`);
+    }
     props.task.tasks.splice(index, 0, newTask);
 }
 
 function addTaskChild(taskId: string) {
-    // maybe a store is more suited....
     const newTask = { id: uuidv4(), name: 'New task', tasks: [], status: TaskStatus.CREATED };
     const task = props.task.tasks.find((t) => t.id === taskId);
+
+    if (!task) {
+        throw new Error(`Task ${taskId} not found`);
+    }
     task?.tasks.push(newTask);
+}
+
+function addTaskRoot() {
+    const newTask = { id: uuidv4(), name: 'New task', tasks: [], status: TaskStatus.CREATED };
+    props.task.tasks.push(newTask);
 }
 </script>

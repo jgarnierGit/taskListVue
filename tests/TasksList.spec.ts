@@ -1,36 +1,23 @@
 // @vitest-environment nuxt
 import { assert, describe, expect, it } from 'vitest';
-import { mountSuspended } from '@nuxt/test-utils/runtime';
 
 import TasksList from '@/components/TasksList.vue';
-import { type ITask, type RootTask } from '@/Interfaces';
+import { type RootTask } from '@/Interfaces';
 import TaskManager from '~/components/TaskManager.vue';
-import { createWrapperWithData, getDirectComponentByTaskId, getDirectComponentByTaskName, getIdsOrder, getTaskIdByName, getTaskIndexByName as getTaskFlatIndexByName } from './commons';
-import AddInlineTask from '~/components/actions/AddInlineTask.vue';
+import { createWrapperWithData, getDirectComponentByTaskId, getDirectComponentByTaskName, getIdsOrder, getTaskIdByName, getTaskIndexByName as getTaskFlatIndexByName, createWrapperEmpty } from './commons';
+import AddTask from '~/components/actions/AddTask.vue';
 
 describe('TasksList.vue', () => {
-    async function createWrapper(task: ITask) {
-        return mountSuspended(TasksList, {
-            props: {
-                task,
-            },
-        });
-    };
     describe('Rendering recursive list', () => {
 
         it('renders empty', async () => {
-            const task: RootTask = {
-                tasks: []
-            };
-
-            const wrapper = await createWrapper(task);
+            const wrapper = await createWrapperEmpty();
 
             const subtaskComponents = wrapper.findAllComponents(TaskManager);
             expect(subtaskComponents).toHaveLength(0);
         });
 
         it('renders subtasks correctly', async () => {
-            // mock
             const subTaskIds = getIdsOrder();
 
             const wrapper = await createWrapperWithData();
@@ -48,10 +35,14 @@ describe('TasksList.vue', () => {
     });
 
     describe('Adding new tasks', () => {
-        it.todo('add first on empty list', async () => {
-            const task: RootTask = {
-                tasks: []
-            };
+        it('add first on empty list', async () => {
+            const wrapper = await createWrapperEmpty();
+            const addInlineComp = wrapper.find('#add-inline-root');
+            assert(!!addInlineComp);
+            await addInlineComp.trigger('click');
+
+            const taskComponents = wrapper.findAllComponents(TaskManager);
+            expect(taskComponents).toHaveLength(1);
         });
         it('add task first position at root level', async () => {
             const taskName = '1';
@@ -105,7 +96,7 @@ describe('TasksList.vue', () => {
             const taskName = '2';
             const wrapper = await createWrapperWithData();
             const taskId = getTaskIdByName(taskName);
-            const addInlineComp = getDirectComponentByTaskId(wrapper, AddInlineTask, taskId);
+            const addInlineComp = getDirectComponentByTaskId(wrapper, AddTask, taskId);
             assert(!!addInlineComp);
             await addInlineComp.trigger('click');
 
