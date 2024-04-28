@@ -3,7 +3,7 @@ import { assert, describe, expect, it, test } from 'vitest';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 
 import ReorderTask from '~/components/actions/ReorderTask.vue';
-import { createWrapperWithData, getTaskIdByName } from '../commons';
+import { createWrapperWithData, getTaskIdByName, getTaskIndexByName } from '../commons';
 import TaskManager from '~/components/TaskManager.vue';
 import type { Task } from '~/Interfaces';
 import TasksList from '~/components/TasksList.vue';
@@ -21,17 +21,6 @@ describe('ReorderTask.vue', () => {
         await menu.trigger('click');*/
         const subComponents = wrapper.findAllComponents(component);
         return subComponents.find((subComp: any) => subComp.props('task').name === name);
-    }
-
-    /**
-     * get flat list index 
-     * @param wrapper 
-     * @param name 
-     * @returns 
-     */
-    function getTaskIndexByName(wrapper: any, name: string): number {
-        const subComponents = wrapper.findAllComponents(TaskManager);
-        return subComponents.findIndex((taskComp: any) => taskComp.props('task').name === name);
     }
 
     async function clickUpButton(comp: any) {

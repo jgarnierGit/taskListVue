@@ -18,5 +18,4 @@ import EditTaskName from './actions/EditTaskName.vue';
 import type { Task } from '~/Interfaces';
 
 defineProps<{ task: Task }>();
-
 </script>

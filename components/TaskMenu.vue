@@ -23,10 +23,6 @@ import ReorderTask from './actions/ReorderTask.vue';
 import DeleteTask from './actions/DeleteTask.vue';
 import type { Task } from '~/Interfaces';
 
-const props = defineProps<{ task: Task, index: number, upOrderFn: (taskId: number) => void, downOrderFn: (taskId: number) => void }>();
-import { onMounted } from 'vue'
+const props = defineProps<{ task: Task, index: string, upOrderFn: (taskId: string) => void, downOrderFn: (taskId: string) => void }>();
 
-onMounted(() => {
-    console.log(`the component is now mounted.`, props.task, props.index);
-})
 </script>

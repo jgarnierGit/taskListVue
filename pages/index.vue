@@ -29,23 +29,23 @@ import AddTask from '~/components/actions/AddTask.vue';
 // mock test
 const tasks = [
   {
-    id: 1,
+    id: "1",
     name: "1",
     status: TaskStatus.CREATED,
     tasks: [
       {
-        id: 4,
+        id: "4",
         name: "1.1",
         status: TaskStatus.CREATED,
         tasks: [],
       },
       {
-        id: 2,
+        id: "2",
         name: "1.2",
         status: TaskStatus.DONE,
         tasks: [
           {
-            id: 5,
+            id: "5",
             name: "1.2.1",
             status: TaskStatus.DONE,
             tasks: [],
@@ -55,7 +55,7 @@ const tasks = [
     ],
   },
   {
-    id: 3,
+    id: "3",
     name: "2",
     status: TaskStatus.DONE,
     tasks: [],

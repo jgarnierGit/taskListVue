@@ -3,7 +3,7 @@ interface ITask {
 }
 
 interface Task extends ITask {
-    id: number,
+    id: string,
     name: string;
     status: TaskStatus;
 }
