@@ -1,5 +1,4 @@
 <template>
-  Name editor :
   <span>
     <span v-if="isDisabled">{{ inputValue }}</span>
     <input type="text" :value="inputValue" :disabled="isDisabled" v-if="!isDisabled" />
@@ -14,8 +13,11 @@
  */
 
 import { ref } from 'vue';
+import type { Task } from '~/Interfaces';
 
-const inputValue = 'Default Value';
+const props = defineProps<{ task: Task }>();
+
+const inputValue = ref(props.task.name);
 const isDisabled = ref(true);
 
 function enableInput() {

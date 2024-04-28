@@ -1,12 +1,8 @@
 <template>
-  <div>{{ task.name }}
-    ________
-    <EditTaskName />
-    ----
-    <TaskStatus />
-    ----
-    ________
-  </div>
+  <EditTaskName :task="task" />
+  ----
+  <TaskStatus />
+  ----
   <slot></slot>
 </template>
 
@@ -21,8 +17,8 @@
 
 import TaskStatus from './infos/TaskStatus.vue';
 import EditTaskName from './actions/EditTaskName.vue';
-import type { ITask, Task } from '~/Interfaces';
+import type { Task } from '~/Interfaces';
 
-defineProps<{ task: Task, parentTask: ITask }>();
+defineProps<{ task: Task }>();
 
 </script>

@@ -1,18 +1,26 @@
 <template>
-    <TaskManager v-for="subTask in taskchilds" v-if="!!taskchilds.length" :task="subTask" :parentTask="task">
-        <!-- ActionsMenu -->
-        <div>
-            <ReorderTask :task="subTask" @up-order="orderingUp" @down-order="orderingDown" />
-            <UpdateTaskStatus />
-            <DeleteTask />
-        </div>
-        <!-- subTask list -->
-        <div v-if="!!subTask.tasks.length">
-            sublisting {{ subTask.name }}
+    <v-list dense dark v-for="subTask in taskchilds" :key="subTask.id">
+        <v-list-group v-if="!!subTask.tasks.length">
+            <template v-slot:activator="{ props }">
+                <v-list-item v-bind="props">
+                    <TaskManager :task="subTask">
+                        <ReorderTask :task="subTask" @up-order="orderingUp" @down-order="orderingDown" />
+                        <UpdateTaskStatus />
+                        <DeleteTask />
+                    </TaskManager>
+                </v-list-item>
+            </template>
             <TasksList :task="subTask" />
-        </div>
-    </TaskManager>
-
+        </v-list-group>
+        <v-list-item v-else
+            :title="subTask.name"><!-- FIXME find a way to remove duplication all while keepin direct hierarchy  with ReorderTask-->
+            <TaskManager :task="subTask">
+                <ReorderTask :task="subTask" @up-order="orderingUp" @down-order="orderingDown" />
+                <UpdateTaskStatus />
+                <DeleteTask />
+            </TaskManager>
+        </v-list-item>
+    </v-list>
 </template>
 
 <script setup lang="ts">

@@ -1,12 +1,20 @@
 <template>
-  <div>
-    <h1>Tasks list</h1>
+  <v-card class="mx-auto" width="600">
+    <v-toolbar dark>
+      <v-toolbar-title>
+        Tasks list
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon>
+        <v-icon @click="createItem()">$plus</v-icon>
+      </v-btn>
+    </v-toolbar>
     <ImportTasks />
     <ExportTasks />
     --------
     <AddTask />
     <TasksList :task="rootTask" />
-  </div>
+  </v-card>
 </template>
 
 <script setup lang="ts">
@@ -54,5 +62,9 @@ const tasks = [
   },
 ];
 const rootTask = ref({ tasks });
+
+function createItem() {
+  console.log("TODO, link to add component");
+}
 
 </script>
