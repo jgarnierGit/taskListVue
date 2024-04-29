@@ -6,6 +6,12 @@ export default defineNuxtConfig({
   build: {
     transpile: ['vuetify'],
   },
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: false,
+    },
+  ],
   modules: ['@nuxt/test-utils/module',
     (_options, nuxt) => {
       nuxt.hooks.hook('vite:extendConfig', (config) => {

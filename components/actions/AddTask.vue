@@ -7,21 +7,18 @@
 
 <script setup lang="ts">
 /**
- * AddTask Component
+ * AddInlineTask Component
  * @description Add a new task at the specified position or at 0 position of the active sublist.
  * 
  */
 const props = defineProps<{ taskId?: string }>();
-const emit = defineEmits(['addTask', 'addTaskTo']);
+const emit = defineEmits(['addTask']);
 
 function emitAddTask() {
-    if (props.taskId) {
-        emit('addTaskTo', props.taskId);
-    }
-    else {
-        emit('addTask');
-    }
-
+    emit('addTask', props.taskId);
 }
 
+onMounted(() => {
+    console.log("mounted addinlineTask");
+})
 </script>

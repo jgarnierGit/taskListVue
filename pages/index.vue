@@ -7,6 +7,8 @@
     </v-toolbar>
     <ImportTasks />
     <ExportTasks />
+    --------
+    <EmptyHack />
     Start creating by clicking
     <v-divider :thickness="5" />
     <TasksList :task="rootTask" />
@@ -20,8 +22,8 @@
  * 
  */
 
-import { TaskStatus, type ITask } from '~/Interfaces';
-
+import { TaskStatus } from '~/Interfaces';
+import EmptyHack from '~/components/actions/EmptyHack.vue';
 // mock test
 const tasks = [
   {
