@@ -7,15 +7,17 @@
                 <v-list-item v-bind="props">
                     <TaskManager :task="subTask">
                         <TaskMenu :task="subTask" :index="subTask.id" :upOrderFn="orderingUp"
-                            :downOrderFn="orderingDown" />
+                            :downOrderFn="orderingDown" :deleteFn="deleteTask" />
                     </TaskManager>
                 </v-list-item>
             </template>
             <TasksList :task="subTask" />
         </v-list-group>
         <AddTask v-else :taskId="subTask.id" @add-task="addTaskChild">
+            <!-- TODO add better labelling context like "Add Task inside/before/after {subTask.name}" -->
             <TaskManager :task="subTask">
-                <TaskMenu :task="subTask" :index="subTask.id" :upOrderFn="orderingUp" :downOrderFn="orderingDown" />
+                <TaskMenu :task="subTask" :index="subTask.id" :upOrderFn="orderingUp" :downOrderFn="orderingDown"
+                    :deleteFn="deleteTask" />
             </TaskManager>
         </AddTask>
         <AddTask :taskId="subTask.id" @add-task="addTaskAfter" :id="'add-inline-after-' + subTask.id" />
@@ -101,6 +103,15 @@ function addTaskChild(taskId: string) {
 function addTaskRoot() {
     const newTask = { id: uuidv4(), name: 'New task', tasks: [], status: TaskStatus.CREATED };
     props.task.tasks.push(newTask);
+}
+
+function deleteTask(taskId: string) {
+    const index = props.task.tasks.findIndex((t) => t.id === taskId);
+
+    if (index === -1) {
+        throw new Error(`Task ${taskId} not found`);
+    }
+    props.task.tasks.splice(index, 1);
 }
 
 </script>

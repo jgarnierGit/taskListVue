@@ -9,8 +9,8 @@
                 <v-list-item title="updateStatus">
                     <UpdateTaskStatus />
                 </v-list-item>
-                <v-list-item title="delete">
-                    <DeleteTask />
+                <v-list-item>
+                    <DeleteTask :taskId="task.id" @delete="deleteFn" />
                 </v-list-item>
             </v-list>
         </v-menu>
@@ -23,6 +23,12 @@ import ReorderTask from './actions/ReorderTask.vue';
 import DeleteTask from './actions/DeleteTask.vue';
 import type { Task } from '~/Interfaces';
 
-const props = defineProps<{ task: Task, index: string, upOrderFn: (taskId: string) => void, downOrderFn: (taskId: string) => void }>();
+defineProps<{
+    task: Task,
+    index: string,
+    upOrderFn: (taskId: string) => void,
+    downOrderFn: (taskId: string) => void,
+    deleteFn: (taskId: string) => void
+}>();
 
 </script>

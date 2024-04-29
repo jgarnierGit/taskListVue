@@ -4,6 +4,14 @@ import TasksList from "~/components/TasksList.vue";
 import { ref } from 'vue';
 import TaskManager from "~/components/TaskManager.vue";
 
+/** FIXME still not enough to access component in menu...
+// vuetify config test
+const vuetify = createVuetify({
+    components,
+    directives,
+});
+*/
+
 /**
  * - 1
  *  - 1.1
@@ -53,6 +61,10 @@ export async function createWrapperWithData() {
         props: {
             task: rootTask,
         },
+        /** FIXME
+        global: {
+            plugins: [vuetify]
+        }*/
     });
 };
 
@@ -63,6 +75,10 @@ export async function createWrapperEmpty() {
         props: {
             task: rootTask,
         },
+        /** FIXME
+        global: {
+            plugins: [vuetify]
+        }*/
     });
 }
 
