@@ -1,7 +1,7 @@
 <template>
   <slot></slot>
   <EditTaskName :task="task" />
-  <TaskStatus />
+  <TaskStatus :task="task" />
 </template>
 
 <script setup lang="ts">

@@ -13,7 +13,7 @@
  * 
  */
 
-import { ref } from 'vue';
-
-const isCompleted = ref(true);
+import { TaskStatus, type Task } from '~/Interfaces';
+const props = defineProps<{ task: Task }>();
+const isCompleted = computed(() => props.task.status === TaskStatus.DONE);
 </script>
