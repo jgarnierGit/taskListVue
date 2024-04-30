@@ -5,11 +5,11 @@
         Tasks list
       </v-toolbar-title>
     </v-toolbar>
-    <ImportTasks />
+    <ImportTasks @replace-tree="replaceRoot" />
     <ExportTasks :task="rootTask" />
     <EmptyHack />
     <div>
-      Start creating by clicking
+      Start creating by clicking below
     </div>
     <v-divider :thickness="5" />
     <TasksList :task="rootTask" />
@@ -23,10 +23,10 @@
  * 
  */
 
-import { TaskStatus } from '~/Interfaces';
+import { TaskStatus, type RootTask, type Task } from '~/Interfaces';
 import EmptyHack from '~/components/actions/EmptyHack.vue';
 // mock test
-const tasks = [
+const tasks: Task[] = [
   {
     id: "1",
     name: "1",
@@ -60,7 +60,11 @@ const tasks = [
     tasks: [],
   },
 ];
-const tasksEmpty = ref([]);
-const rootTask = ref({ tasks });
+const tasksEmpty: Task[] = [];
+const rootTask = reactive({ tasks: tasksEmpty });
+
+function replaceRoot(newTree: RootTask) {
+  rootTask.tasks = newTree.tasks;
+}
 
 </script>
