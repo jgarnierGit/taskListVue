@@ -1,7 +1,7 @@
 <template>
-    <v-btn icon :id="'menu-activator-' + index">
+    <v-btn icon :id="`menu-activator-${index}`" @click.stop>
         <v-icon>$dotsVertical</v-icon>
-        <v-menu :activator="'#menu-activator-' + index">
+        <v-menu :activator="`#menu-activator-${index}`">
             <v-list>
                 <v-list-item>
                     <ReorderTask :task="task" @up-order="upOrderFn" @down-order="downOrderFn" />
