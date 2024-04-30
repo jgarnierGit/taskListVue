@@ -7,7 +7,7 @@
                     <ReorderTask :task="task" @up-order="upOrderFn" @down-order="downOrderFn" />
                 </v-list-item>
                 <v-list-item title="updateStatus">
-                    <UpdateTaskStatus />
+                    <UpdateTaskStatus :task="task" @status-update="updateFn" />
                 </v-list-item>
                 <v-list-item>
                     <DeleteTask :taskId="task.id" @delete="deleteFn" />
@@ -28,7 +28,8 @@ defineProps<{
     index: string,
     upOrderFn: (taskId: string) => void,
     downOrderFn: (taskId: string) => void,
-    deleteFn: (taskId: string) => void
+    deleteFn: (taskId: string) => void,
+    updateFn: (taskId: string) => void
 }>();
 
 </script>

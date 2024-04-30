@@ -1,8 +1,10 @@
 <template>
-    <div>
-        <span v-if="isCompleted">Undone</span>
-        <span v-if="!isCompleted">Complete</span>
-    </div>
+    <v-btn prepend-icon="$check" v-if="!isCompleted" id="complete-task" @click="emitStatusUpdate">
+        Complete
+    </v-btn>
+    <v-btn prepend-icon="$autorenew" v-if="isCompleted" id="unvalidate-task" @click="emitStatusUpdate">
+        Undone
+    </v-btn>
 </template>
 
 <script setup lang="ts">
@@ -11,9 +13,15 @@
  * @description Update task status to Created / Done
  * 
  */
+import { TaskStatus, type Task } from '~/Interfaces';
 
-import { ref } from 'vue';
-const isCompleted = ref(false);
+const isCompleted = computed(() => {
+    return props.task.status === TaskStatus.DONE;
+});
+const props = defineProps<{ task: Task }>();
+const emit = defineEmits(['statusUpdate']);
 
-
+function emitStatusUpdate() {
+    emit('statusUpdate', props.task.id);
+}
 </script>
