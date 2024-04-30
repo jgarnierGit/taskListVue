@@ -7,7 +7,7 @@
     </v-toolbar>
     <ImportTasks @replace-tree="replaceRoot" />
     <ExportTasks :task="rootTask" />
-    <EmptyHack />
+
     <div>
       Start creating by clicking below
     </div>
@@ -24,7 +24,6 @@
  */
 
 import { TaskStatus, type RootTask, type Task } from '~/Interfaces';
-import EmptyHack from '~/components/actions/EmptyHack.vue';
 // mock test
 const tasks: Task[] = [
   {
