@@ -6,10 +6,11 @@
       </v-toolbar-title>
     </v-toolbar>
     <ImportTasks />
-    <ExportTasks />
-    --------
+    <ExportTasks :task="rootTask" />
     <EmptyHack />
-    Start creating by clicking
+    <div>
+      Start creating by clicking
+    </div>
     <v-divider :thickness="5" />
     <TasksList :task="rootTask" />
   </v-card>
