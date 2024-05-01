@@ -1,6 +1,6 @@
 <template>
   <slot></slot>
-  <EditTaskName :task="task" />
+  <EditTaskName v-model:taskName="task.name" />
   <TaskStatus :task="task" />
 </template>
 

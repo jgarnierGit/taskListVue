@@ -1,6 +1,6 @@
 <template>
   <span>
-    <v-text-field data-testid="editTaskName" ref="taskNameInput" :model-value="task.name" :rules="[required]"
+    <v-text-field data-testid="edit-task-name" ref="taskNameInput" v-model="taskName" :rules="[required]"
       placeholder="Edit task name" persistent-placeholder :variant="getVariant" @click.stop="enableInput"
       @blur="disableInput" @keydown.enter.stop="disableInput"></v-text-field>
   </span>
@@ -13,10 +13,8 @@
  * 
  */
 
-import { ref } from 'vue';
-import type { Task } from '~/Interfaces';
-
-defineProps<{ task: Task }>();
+import { computed, ref } from 'vue';
+const taskName = defineModel('taskName');
 
 const required = (value: string) => { return !!value || 'Required.' };
 

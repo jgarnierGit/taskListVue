@@ -20,7 +20,7 @@ describe('DeleteTask.vue', () => {
         const taskComponents = wrapper.findAllComponents(TaskManager);
         const taskEdited = taskComponents.find((t) => t.props('task').id === taskId);
         assert(!!taskEdited);
-        // FIXME value not persisted in test context
+        // FIXME value not persisted in test context when using v-text-field with input field test is valid
         expect(taskEdited.props('task').name).toEqual('Toto');
     });
 });
