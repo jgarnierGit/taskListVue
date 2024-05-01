@@ -1,7 +1,8 @@
 <template>
   <span>
-    <span v-if="isDisabled">{{ inputValue }}</span>
-    <input type="text" :value="inputValue" :disabled="isDisabled" v-if="!isDisabled" />
+    <v-text-field data-testid="editTaskName" ref="taskNameInput" :model-value="task.name" :rules="[required]"
+      placeholder="Edit task name" persistent-placeholder :variant="getVariant" @click.stop="enableInput"
+      @blur="disableInput" @keydown.enter.stop="disableInput"></v-text-field>
   </span>
 </template>
 
@@ -15,12 +16,25 @@
 import { ref } from 'vue';
 import type { Task } from '~/Interfaces';
 
-const props = defineProps<{ task: Task }>();
+defineProps<{ task: Task }>();
 
-const inputValue = ref(props.task.name);
+const required = (value: string) => { return !!value || 'Required.' };
+
 const isDisabled = ref(true);
 
+const taskNameInput = ref<HTMLInputElement | null>(null);
+
+
+const getVariant = computed(() => {
+  return isDisabled.value ? 'plain' : 'outlined';
+})
+
 function enableInput() {
-  console.log("switching edition name");
+  isDisabled.value = false;
+}
+function disableInput() {
+  isDisabled.value = true;
+  // make sure to loose focus when pressing enter
+  taskNameInput.value?.blur();
 }
 </script>

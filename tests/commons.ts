@@ -1,9 +1,21 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { TaskStatus, type RootTask, type Task } from "~/Interfaces";
+import { TaskStatus, type ITask } from "~/Interfaces";
 import TasksList from "~/components/TasksList.vue";
 import { ref } from 'vue';
 import TaskManager from "~/components/TaskManager.vue";
+import { config } from '@vue/test-utils';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
+import { createVuetify } from 'vuetify';
 
+const vuetify = createVuetify({
+    components,
+    directives,
+});
+
+global.ResizeObserver = require('resize-observer-polyfill')
+
+config.global.plugins.push(vuetify);
 /** FIXME still not enough to access component in menu...
 // vuetify config test
 const vuetify = createVuetify({
@@ -61,12 +73,21 @@ export async function createWrapperWithData() {
         props: {
             task: rootTask,
         },
-        /** FIXME
         global: {
             plugins: [vuetify]
-        }*/
+        }
     });
 };
+export async function createWrapperWithTask(comp: any, task: ITask) {
+    return mountSuspended(comp, {
+        props: {
+            task: reactive(task),
+        },
+        global: {
+            plugins: [vuetify]
+        }
+    });
+}
 
 export async function createWrapperEmpty() {
     const tasks = ref([]);

@@ -1,7 +1,7 @@
 <template>
     <AddTask @add-task="addTaskRoot" id="add-inline-root" v-if="!task.tasks.length" />
     <v-list dense dark v-for="(subTask, index) in task.tasks" :key="subTask.id">
-        <AddTask :taskId="subTask.id" @add-task="addTaskBefore" v-if="!index" :id="'add-inline-before-' + subTask.id" />
+        <AddTask :taskId="subTask.id" @add-task="addTaskBefore" v-if="!index" :id="`add-inline-before-${subTask.id}`" />
         <v-list-group v-if="!!subTask.tasks.length">
             <template v-slot:activator="{ props }">
                 <v-list-item v-bind="props">
@@ -20,7 +20,7 @@
                     :deleteFn="deleteTask" :updateFn="updateStatus" />
             </TaskManager>
         </AddTask>
-        <AddTask :taskId="subTask.id" @add-task="addTaskAfter" :id="'add-inline-after-' + subTask.id" />
+        <AddTask :taskId="subTask.id" @add-task="addTaskAfter" :id="`add-inline-after-${subTask.id}`" />
     </v-list>
 </template>
 
