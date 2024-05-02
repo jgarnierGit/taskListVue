@@ -4,7 +4,8 @@
 
 <script setup lang="ts">
 import type { RootTask } from '~/Interfaces';
-const emit = defineEmits(['replaceTree']);
+const rootTask = defineModel<RootTask>({ required: true });
+const emit = defineEmits(['importedTasksList']);
 /**
  * ImportTasks Component
  * @description JSON tasks importer
@@ -33,7 +34,9 @@ function importTasks(event: Event) {
         const importResult = parseTasks(result);
 
         if (importResult.success) {
-            emit('replaceTree', importResult.taskTree);
+            if (importResult.taskTree) {
+                replaceRoot(importResult.taskTree);
+            }
         } else {
             alert(importResult.error);
         }
@@ -51,6 +54,11 @@ function parseTasks(json: string): ImportResult {
     } catch (error) {
         return { success: false, error: 'Invalid JSON format' };
     }
+}
+
+function replaceRoot(newTree: RootTask) {
+    rootTask.value.tasks = newTree.tasks;
+    emit('importedTasksList');
 }
 
 interface ImportResult {

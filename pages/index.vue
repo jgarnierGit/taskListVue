@@ -5,7 +5,7 @@
         Tasks list
       </v-toolbar-title>
     </v-toolbar>
-    <ImportTasks @replace-tree="replaceRoot" />
+    <ImportTasks v-model="rootTask" />
     <ExportTasks :task="rootTask" />
 
     <div>
@@ -24,6 +24,7 @@
  */
 
 import { TaskStatus, type RootTask, type Task } from '~/Interfaces';
+
 // mock test
 const tasks: Task[] = [
   {
@@ -61,9 +62,5 @@ const tasks: Task[] = [
 ];
 const tasksEmpty: Task[] = [];
 const rootTask = reactive({ tasks: tasksEmpty });
-
-function replaceRoot(newTree: RootTask) {
-  rootTask.tasks = newTree.tasks;
-}
 
 </script>
