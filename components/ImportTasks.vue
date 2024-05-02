@@ -3,7 +3,8 @@
 </template>
 
 <script setup lang="ts">
-import type { RootTask } from '~/Interfaces';
+import { z } from 'zod';
+import { TaskStatus, type RootTask } from '~/Interfaces';
 const rootTask = defineModel<RootTask>({ required: true });
 const emit = defineEmits(['importedTasksList']);
 /**
@@ -48,9 +49,29 @@ function importTasks(event: Event) {
 }
 
 function parseTasks(json: string): ImportResult {
+    const task = z.object({ id: z.string(), name: z.string(), status: z.nativeEnum(TaskStatus), tasks: z.object({}).array().optional() });
+    type TaskType = z.infer<typeof task & { tasks: TaskType[] }>;
+    const taskSchema: z.ZodType<TaskType> = task.extend({
+        tasks: z.lazy(() => task.array()),
+    });
+    const RootTaskSchema = z.object({ tasks: z.array(taskSchema) });
+    type RootTaskType = z.infer<typeof RootTaskSchema>;
+    const rootTaskFromString = (content: string): RootTaskType => {
+        return z.string().transform((_, ctx) => {
+            try {
+                return JSON.parse(content);
+            } catch (error) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'invalid json'
+                });
+                return z.never;
+            }
+        }).pipe(RootTaskSchema).parse(content);
+    }
     try {
-        const taskTree = JSON.parse(json) as RootTask;
-        return { success: true, taskTree };
+        const taskTree = rootTaskFromString(json);
+        return { success: true, taskTree: taskTree as RootTask };
     } catch (error) {
         return { success: false, error: 'Invalid JSON format' };
     }

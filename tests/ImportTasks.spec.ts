@@ -1,5 +1,5 @@
 // @vitest-environment nuxt
-import { assert, describe, expect, it } from 'vitest';
+import { assert, describe, expect, it, vitest } from 'vitest';
 import ImportTasks from '../components/ImportTasks.vue';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type RootTask, TaskStatus, type Task } from '~/Interfaces';
@@ -21,7 +21,6 @@ describe('Import tasks', () => {
         dataTransfer.items.add(importFile);
         importInput.element.files = dataTransfer.files as FileList;
         await importInput.trigger('change');
-        await waitFor(() => expect(importWrapper.emitted()['importedTasksList']).toHaveLength(1));
     }
 
     it('imports tasks correctly', async () => {
@@ -55,6 +54,7 @@ describe('Import tasks', () => {
         });
 
         await loadJson(importWrapper, tasks);
+        await waitFor(() => expect(importWrapper.emitted()['importedTasksList']).toHaveLength(1));
         expect(JSON.stringify(importWrapper.vm.modelValue)).toEqual(JSON.stringify(tasks));
     });
 
@@ -90,7 +90,13 @@ describe('Import tasks', () => {
             },
         });
         await loadJson(importWrapper, tasks);
+        // Mock the alert function
+        const originalAlert = window.alert;
+        window.alert = vitest.fn();
+        await waitFor(() => expect(window.alert).toHaveBeenCalled());
         expect(JSON.stringify(importWrapper.vm.modelValue)).toEqual(JSON.stringify({ tasks: [] }));
+        // Restore the original alert function
+        window.alert = originalAlert
     });
 
     it('imports tasks fails: child missing properties, expected no import', async () => {
@@ -123,7 +129,13 @@ describe('Import tasks', () => {
             },
         });
         await loadJson(importWrapper, tasks);
+        // Mock the alert function
+        const originalAlert = window.alert;
+        window.alert = vitest.fn();
+        await waitFor(() => expect(window.alert).toHaveBeenCalled());
         expect(JSON.stringify(importWrapper.vm.modelValue)).toEqual(JSON.stringify({ tasks: [] }));
+        // Restore the original alert function
+        window.alert = originalAlert
     });
 
     it('imports tasks fails: duplicated ids, expected no import', async () => {
@@ -158,6 +170,12 @@ describe('Import tasks', () => {
             },
         });
         await loadJson(importWrapper, tasks);
+        // Mock the alert function
+        const originalAlert = window.alert;
+        window.alert = vitest.fn();
+        await waitFor(() => expect(window.alert).toHaveBeenCalled());
         expect(JSON.stringify(importWrapper.vm.modelValue)).toEqual(JSON.stringify({ tasks: [] }));
+        // Restore the original alert function
+        window.alert = originalAlert
     });
 });
