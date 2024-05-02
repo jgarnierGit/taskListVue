@@ -16,13 +16,6 @@ const vuetify = createVuetify({
 global.ResizeObserver = require('resize-observer-polyfill')
 
 config.global.plugins.push(vuetify);
-/** FIXME still not enough to access component in menu...
-// vuetify config test
-const vuetify = createVuetify({
-    components,
-    directives,
-});
-*/
 
 /**
  * - 1
@@ -96,10 +89,6 @@ export async function createWrapperEmpty() {
         props: {
             task: rootTask,
         },
-        /** FIXME
-        global: {
-            plugins: [vuetify]
-        }*/
     });
 }
 

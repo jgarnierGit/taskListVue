@@ -123,7 +123,7 @@ function updateStatus(taskId: string) {
         case TaskStatus.CREATED:
             const areChildsDone = checkChildsStatusDone(task);
             if (!areChildsDone) {
-                console.log("NOT authorized"); // TODO prompt to user
+                alert("NOT authorized");
                 return;
             }
             task.status = TaskStatus.DONE;

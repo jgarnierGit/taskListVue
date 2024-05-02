@@ -6,7 +6,7 @@
                 <v-list-item>
                     <ReorderTask :task="task" @up-order="upOrderFn" @down-order="downOrderFn" />
                 </v-list-item>
-                <v-list-item title="updateStatus">
+                <v-list-item>
                     <UpdateTaskStatus :task="task" @status-update="updateFn" />
                 </v-list-item>
                 <v-list-item>
@@ -18,6 +18,11 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * TaskMenu Component
+ * @description Menu interface for Task actions
+ * 
+ */
 import UpdateTaskStatus from './actions/UpdateTaskStatus.vue';
 import ReorderTask from './actions/ReorderTask.vue';
 import DeleteTask from './actions/DeleteTask.vue';

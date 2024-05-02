@@ -25,7 +25,7 @@ function importTasks(event: Event) {
     const maxSize = 1 * 1024 * 1024; // 1 MB
 
     if (file.size > maxSize) {
-        console.log(`TODO process file server side, requires lazy loading`);
+        alert(`File too large, need server file loading, and requires lazy loading`);
         return;
     }
 

@@ -18,7 +18,4 @@ function emitAddTask() {
     emit('addTask', props.taskId);
 }
 
-onMounted(() => {
-    console.log("mounted addinlineTask");
-})
 </script>

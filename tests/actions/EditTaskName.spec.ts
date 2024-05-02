@@ -13,7 +13,7 @@ describe('DeleteTask.vue', () => {
         const wrapper = await createWrapperWithData();
         const taskId = getTaskIdByName(taskName);
         const editNameComp = getDirectComponentByTaskName(wrapper, EditTaskName, taskName);
-        const editField = editNameComp.find('input[type="text"]');
+        const editField = wrapper.findComponent('[data-testid="edit-task-name"]');
         editField.trigger('click');
         editField.setValue('Toto');
         editField.trigger('blur');
