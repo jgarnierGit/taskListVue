@@ -1,10 +1,7 @@
 import { test, expect } from '@playwright/test';
-test.beforeEach(async ({ page }) => {
-  await page.goto('http://localhost:3000/');
-});
 
 test('edit the name', async ({ page }) => {
-
+  await page.goto('http://localhost:3000/');
   await page.locator('#add-inline-root').click();
   await page.getByPlaceholder('Edit task name').click();
   await page.getByPlaceholder('Edit task name').press('Control+a');
@@ -15,6 +12,7 @@ test('edit the name', async ({ page }) => {
 });
 
 test('make sure name stay consistent while adding a first child', async ({ page }) => {
+  await page.goto('http://localhost:3000/');
   await page.locator('#add-inline-root').click();
   await page.getByPlaceholder('Edit task name').click();
   await page.getByPlaceholder('Edit task name').press('Control+a');
