@@ -11,7 +11,7 @@
                     </TaskManager>
                 </v-list-item>
             </template>
-            <TasksList :task="subTask" />
+            <TasksList :task="subTask" @update-parent-status="updateParentStatus" />
         </v-list-group>
         <AddTask v-else :taskId="subTask.id" @add-task="addTaskChild">
             <!-- TODO add better labelling context like "Add Task inside/before/after {subTask.name}" -->
@@ -38,6 +38,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 const props = defineProps<{ task: ITask }>();
+
+const emit = defineEmits(['updateParentStatus']);
 
 
 function orderingUp(taskId: string) {
@@ -116,9 +118,6 @@ function updateStatus(taskId: string) {
     if (!task) {
         throw new Error(`Task ${taskId} not found`);
     }
-    if (!task) {
-        throw new Error(`Task not found`);
-    }
     switch (task.status) {
         case TaskStatus.CREATED:
             const areChildsDone = checkChildsStatusDone(task);
@@ -127,23 +126,36 @@ function updateStatus(taskId: string) {
                 return;
             }
             task.status = TaskStatus.DONE;
+            updateParentStatus();
+            emit('updateParentStatus');
             return;
         case TaskStatus.DONE:
             task.status = TaskStatus.CREATED;
         default:
             return;
     }
+}
 
-    function checkChildsStatusDone(task: Task): Boolean {
-        for (const subTask of task.tasks) {
-            if (subTask.status === TaskStatus.CREATED) {
-                return false;
-            }
-            if (!!subTask.tasks.length) {
-                checkChildsStatusDone(subTask);
-            }
+function checkChildsStatusDone(task: Task): Boolean {
+    for (const subTask of task.tasks) {
+        if (subTask.status === TaskStatus.CREATED) {
+            return false;
         }
-        return true;
+        if (!!subTask.tasks.length) {
+            checkChildsStatusDone(subTask);
+        }
+    }
+    return true;
+}
+
+function updateParentStatus() {
+    if (!(props.task as Task).name) {
+        return;
+    }
+    const areChildsDone = checkChildsStatusDone((props.task as Task));
+    if (areChildsDone && (props.task as Task).status !== TaskStatus.DONE) {
+        (props.task as Task).status = TaskStatus.DONE;
+        emit('updateParentStatus');
     }
 }
 

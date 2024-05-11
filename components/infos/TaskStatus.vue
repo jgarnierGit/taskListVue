@@ -1,8 +1,8 @@
 <template>
     <div>
         status :
-        <span v-if="isCompleted">Done</span>
-        <span v-if="!isCompleted">Created</span>
+        <span :data-testid="`taskStatusDone-${task.id}`" v-if="isCompleted">Done</span>
+        <span :data-testid="`taskStatusCreated-${task.id}`" v-if="!isCompleted">Created</span>
     </div>
 </template>
 

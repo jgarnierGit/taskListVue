@@ -61,6 +61,6 @@ const tasks: Task[] = [
   },
 ];
 const tasksEmpty: Task[] = [];
-const rootTask = reactive({ tasks: tasksEmpty });
+const rootTask = reactive({ tasks: tasks });
 
 </script>
