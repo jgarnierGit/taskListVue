@@ -31,7 +31,7 @@ import type { Task } from '~/types/Interfaces';
 defineProps<{
     task: Task,
     index: string,
-    upOrderFn: (taskId: string) => void,
+    upOrderFn: (taskId: string) => void,//REVIEW: listing all the menu entries as props kinda defeat what we could expect from a flexible menu
     downOrderFn: (taskId: string) => void,
     deleteFn: (taskId: string) => void,
     updateFn: (taskId: string) => void

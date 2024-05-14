@@ -1,17 +1,19 @@
 <template>
-    <v-btn density="compact" id="export-tasks" @click="exportTasks"><v-icon>$download
-        </v-icon>Export Tasks</v-btn>
+    <v-btn density="compact" id="export-tasks" @click="exportTasks">
+        <v-icon>$download</v-icon>
+        Export Tasks
+    </v-btn>
 </template>
 
 <script setup lang="ts">
-import type { ITask } from '~/types/Interfaces';
+import type { TaskList } from '~/types/Interfaces';
 
 /**
  * ExportTasks Component
  * @description JSON tasks exporter
  * 
  */
-const props = defineProps<{ task: ITask }>();
+const props = defineProps<{ task: TaskList }>();
 
 function exportTasks() {
     const json = JSON.stringify(props.task, null, 2);

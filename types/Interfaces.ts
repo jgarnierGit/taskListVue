@@ -1,14 +1,11 @@
-interface ITask {
+interface TaskList {
     tasks: Task[];
 }
 
-interface Task extends ITask {
+interface Task extends TaskList {
     id: string,
     name: string;
     isDone: boolean;
 }
 
-interface RootTask extends ITask {
-}
-
-export type { Task, RootTask, ITask };
+export type { Task, TaskList };

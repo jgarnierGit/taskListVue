@@ -19,6 +19,8 @@
                 <TaskMenu :task="subTask" :index="subTask.id" :upOrderFn="orderingUp" :downOrderFn="orderingDown"
                     :deleteFn="deleteTask" :updateFn="updateStatus" />
             </TaskManager>
+            <!-- REVIEW: TaskManager and TaskMenu could be implemented differently to prevent repetition and nesting in AddTask-->
+            <!-- refactor the whole ui-->
         </AddTask>
         <AddTask :taskId="subTask.id" @add-task="addTaskAfter" :id="`add-inline-after-${subTask.id}`" />
     </v-list>
@@ -32,18 +34,18 @@
  *  - subLists
  */
 
-import { type ITask, type Task } from '~/types/Interfaces';
+import { type TaskList, type Task } from '~/types/Interfaces';
 import AddTask from './actions/AddTask.vue';
 import { v4 as uuidv4 } from 'uuid';
 
 
-const props = defineProps<{ task: ITask }>();
+const props = defineProps<{ task: TaskList }>();
 
 const emit = defineEmits(['updateParentStatus']);
 
 
 function orderingUp(taskId: string) {
-    const index = props.task.tasks.findIndex((t) => t.id === taskId);
+    const index = props.task.tasks.findIndex((t) => t.id === taskId); //REVIEW: this is repeated many times
     if (index <= 0) {
         return;
     }

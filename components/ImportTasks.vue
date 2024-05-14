@@ -4,8 +4,8 @@
 
 <script setup lang="ts">
 import { z } from 'zod';
-import { type RootTask } from '~/types/Interfaces';
-const rootTask = defineModel<RootTask>({ required: true });
+import { type TaskList } from '~/types/Interfaces';
+const root = defineModel<TaskList>({ required: true });
 const emit = defineEmits(['importedTasksList']);
 /**
  * ImportTasks Component
@@ -50,6 +50,8 @@ function importTasks(event: Event) {
 
 function parseTasks(json: string): ImportResult {
     const task = z.object({ id: z.string(), name: z.string(), isDone: z.boolean(), tasks: z.object({}).array().optional() });
+    //REVIEW: formatting could be improved to help readability
+    //REVIEW: this seems to be redundant with types from Interface file
     type TaskType = z.infer<typeof task & { tasks: TaskType[] }>;
     const taskSchema: z.ZodType<TaskType> = task.extend({
         tasks: z.lazy(() => task.array()),
@@ -71,20 +73,23 @@ function parseTasks(json: string): ImportResult {
     }
     try {
         const taskTree = rootTaskFromString(json);
-        return { success: true, taskTree: taskTree as RootTask };
+        // TODO test something really more straight forward
+        const parseData = JSON.parse(json);
+        RootTaskSchema.parse(parseData);
+        return { success: true, taskTree: taskTree as TaskList };
     } catch (error) {
         return { success: false, error: 'Invalid JSON format' };
     }
 }
 
-function replaceRoot(newTree: RootTask) {
-    rootTask.value.tasks = newTree.tasks;
+function replaceRoot(newTree: TaskList) {
+    root.value.tasks = newTree.tasks;
     emit('importedTasksList');
 }
 
 interface ImportResult {
     success: boolean;
-    taskTree?: RootTask;
+    taskTree?: TaskList;
     error?: string;
 }
 </script>

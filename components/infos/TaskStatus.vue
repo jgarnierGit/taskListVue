@@ -2,7 +2,7 @@
     <div>
         status :
         <span :data-testid="`taskStatusDone-${task.id}`" v-if="isCompleted">Done</span>
-        <span :data-testid="`taskStatusCreated-${task.id}`" v-if="!isCompleted">Created</span>
+        <span :data-testid="`taskStatusCreated-${task.id}`" v-else>Created</span>
     </div>
 </template>
 

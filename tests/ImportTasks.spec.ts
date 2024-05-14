@@ -2,7 +2,7 @@
 import { describe, expect, it, vitest } from 'vitest';
 import ImportTasks from '../components/ImportTasks.vue';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
-import { type RootTask, type Task } from '~/types/Interfaces';
+import { type Task, type TaskList } from '~/types/Interfaces';
 import { VueWrapper } from '@vue/test-utils';
 import { waitFor } from '@testing-library/vue';
 
@@ -44,10 +44,10 @@ describe('Import tasks', () => {
             ]
         };
         const emptyTasks: Task[] = [];
-        const rootTask = reactive<RootTask>({ tasks: emptyTasks });
+        const root = reactive<TaskList>({ tasks: emptyTasks });
         const importWrapper = await mountSuspended(ImportTasks, {
             props: {
-                modelValue: rootTask,
+                modelValue: root,
             },
         });
 
@@ -81,10 +81,10 @@ describe('Import tasks', () => {
         };
 
         const emptyTasks: Task[] = [];
-        const rootTask = reactive<RootTask>({ tasks: emptyTasks });
+        const root = reactive<TaskList>({ tasks: emptyTasks });
         const importWrapper = await mountSuspended(ImportTasks, {
             props: {
-                modelValue: rootTask,
+                modelValue: root,
             },
         });
         await loadJson(importWrapper, tasks);
@@ -120,10 +120,10 @@ describe('Import tasks', () => {
         };
 
         const emptyTasks: Task[] = [];
-        const rootTask = reactive<RootTask>({ tasks: emptyTasks });
+        const root = reactive<TaskList>({ tasks: emptyTasks });
         const importWrapper = await mountSuspended(ImportTasks, {
             props: {
-                modelValue: rootTask,
+                modelValue: root,
             },
         });
         await loadJson(importWrapper, tasks);
@@ -161,10 +161,10 @@ describe('Import tasks', () => {
         };
 
         const emptyTasks: Task[] = [];
-        const rootTask = reactive<RootTask>({ tasks: emptyTasks });
+        const root = reactive<TaskList>({ tasks: emptyTasks });
         const importWrapper = await mountSuspended(ImportTasks, {
             props: {
-                modelValue: rootTask,
+                modelValue: root,
             },
         });
         await loadJson(importWrapper, tasks);

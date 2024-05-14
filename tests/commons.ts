@@ -1,5 +1,4 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { type ITask } from "~/types/Interfaces";
 import TasksList from "~/components/TasksList.vue";
 import { ref } from 'vue';
 import TaskManager from "~/components/TaskManager.vue";
@@ -7,6 +6,7 @@ import { config } from '@vue/test-utils';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createVuetify } from 'vuetify';
+import type { TaskList } from "~/types/Interfaces";
 
 const vuetify = createVuetify({
     components,
@@ -60,18 +60,18 @@ export async function createWrapperWithData() {
             tasks: [],
         },
     ]);
-    const rootTask = { tasks: tasks.value };
+    const root = { tasks: tasks.value };
 
     return mountSuspended(TasksList, {
         props: {
-            task: rootTask,
+            task: root,
         },
         global: {
             plugins: [vuetify]
         }
     });
 };
-export async function createWrapperWithTask(comp: any, task: ITask) {
+export async function createWrapperWithTask(comp: any, task: TaskList) {
     return mountSuspended(comp, {
         props: {
             task: reactive(task),
@@ -84,10 +84,10 @@ export async function createWrapperWithTask(comp: any, task: ITask) {
 
 export async function createWrapperEmpty() {
     const tasks = ref([]);
-    const rootTask = { tasks: tasks.value };
+    const root = { tasks: tasks.value };
     return mountSuspended(TasksList, {
         props: {
-            task: rootTask,
+            task: root,
         },
     });
 }
