@@ -4,7 +4,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ITask } from '~/Interfaces';
+import type { ITask } from '~/types/Interfaces';
 
 /**
  * ExportTasks Component

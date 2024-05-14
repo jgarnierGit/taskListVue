@@ -23,44 +23,7 @@
  * 
  */
 
-import { TaskStatus, type RootTask, type Task } from '~/Interfaces';
-
-// mock test
-const tasks: Task[] = [
-  {
-    id: "1",
-    name: "1",
-    status: TaskStatus.CREATED,
-    tasks: [
-      {
-        id: "4",
-        name: "1.1",
-        status: TaskStatus.CREATED,
-        tasks: [],
-      },
-      {
-        id: "2",
-        name: "1.2",
-        status: TaskStatus.DONE,
-        tasks: [
-          {
-            id: "5",
-            name: "1.2.1",
-            status: TaskStatus.DONE,
-            tasks: [],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "3",
-    name: "2",
-    status: TaskStatus.DONE,
-    tasks: [],
-  },
-];
-const tasksEmpty: Task[] = [];
-const rootTask = reactive({ tasks: tasks });
+import { type RootTask } from '~/types/Interfaces';
+const rootTask: RootTask = reactive({ tasks: [] });
 
 </script>

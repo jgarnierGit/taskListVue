@@ -2,7 +2,7 @@
 import { assert, describe, expect, it } from 'vitest';
 
 import TasksList from '@/components/TasksList.vue';
-import { type RootTask } from '@/Interfaces';
+import { type RootTask } from '~/types/Interfaces';
 import TaskManager from '~/components/TaskManager.vue';
 import { createWrapperWithData, getDirectComponentByTaskId, getDirectComponentByTaskName, getIdsOrder, getTaskIdByName, getTaskIndexByName as getTaskFlatIndexByName, createWrapperEmpty } from './commons';
 import AddTask from '~/components/actions/AddTask.vue';

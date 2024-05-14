@@ -32,7 +32,7 @@
  *  - subLists
  */
 
-import { TaskStatus, type ITask, type Task } from '~/Interfaces';
+import { type ITask, type Task } from '~/types/Interfaces';
 import AddTask from './actions/AddTask.vue';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -51,6 +51,7 @@ function orderingUp(taskId: string) {
     const currentTask = props.task.tasks[index];
     props.task.tasks[index - 1] = currentTask;
     props.task.tasks[index] = prevTask;
+    // TODO use splice.
 }
 
 function orderingDown(taskId: string) {
@@ -62,10 +63,11 @@ function orderingDown(taskId: string) {
     const currentTask = props.task.tasks[index];
     props.task.tasks[index + 1] = currentTask;
     props.task.tasks[index] = prevTask;
+    // TODO use splice.
 }
 
 function addTaskAfter(taskId: string) {
-    const newTask = { id: uuidv4(), name: 'New task', tasks: [], status: TaskStatus.CREATED };
+    const newTask = createTask();
     const index = props.task.tasks.findIndex((t) => t.id === taskId);
 
     if (index === -1) {
@@ -76,7 +78,7 @@ function addTaskAfter(taskId: string) {
 }
 
 function addTaskBefore(taskId: string) {
-    const newTask = { id: uuidv4(), name: 'New task', tasks: [], status: TaskStatus.CREATED };
+    const newTask = createTask();
     const index = props.task.tasks.findIndex((t) => t.id === taskId);
 
     if (index === -1) {
@@ -87,7 +89,7 @@ function addTaskBefore(taskId: string) {
 }
 
 function addTaskChild(taskId: string) {
-    const newTask = { id: uuidv4(), name: 'New task', tasks: [], status: TaskStatus.CREATED };
+    const newTask = createTask();
     const task = props.task.tasks.find((t) => t.id === taskId);
 
     if (!task) {
@@ -97,9 +99,14 @@ function addTaskChild(taskId: string) {
     task.tasks.push(newTask);
 }
 
+
 function addTaskRoot() {
-    const newTask = { id: uuidv4(), name: 'New task', tasks: [], status: TaskStatus.CREATED };
+    const newTask = createTask();
     props.task.tasks.push(newTask);
+}
+
+function createTask() {
+    return { id: uuidv4(), name: 'New task', tasks: [], isDone: false };
 }
 
 function deleteTask(taskId: string) {
@@ -118,27 +125,24 @@ function updateStatus(taskId: string) {
     if (!task) {
         throw new Error(`Task ${taskId} not found`);
     }
-    switch (task.status) {
-        case TaskStatus.CREATED:
-            const areChildsDone = checkChildsStatusDone(task);
-            if (!areChildsDone) {
-                alert("NOT authorized");
-                return;
-            }
-            task.status = TaskStatus.DONE;
-            updateParentStatus();
-            emit('updateParentStatus');
+    if (task.isDone) {
+        task.isDone = false;
+    }
+    else {
+        const areChildsDone = checkChildsStatusDone(task);
+        if (!areChildsDone) {
+            alert("NOT authorized");
             return;
-        case TaskStatus.DONE:
-            task.status = TaskStatus.CREATED;
-        default:
-            return;
+        }
+        task.isDone = true;
+        updateParentStatus();
+        emit('updateParentStatus');
     }
 }
 
 function checkChildsStatusDone(task: Task): Boolean {
     for (const subTask of task.tasks) {
-        if (subTask.status === TaskStatus.CREATED) {
+        if (!subTask.isDone) {
             return false;
         }
         if (!!subTask.tasks.length) {
@@ -153,8 +157,8 @@ function updateParentStatus() {
         return;
     }
     const areChildsDone = checkChildsStatusDone((props.task as Task));
-    if (areChildsDone && (props.task as Task).status !== TaskStatus.DONE) {
-        (props.task as Task).status = TaskStatus.DONE;
+    if (areChildsDone && !((props.task as Task).isDone)) {
+        (props.task as Task).isDone = true;
         emit('updateParentStatus');
     }
 }

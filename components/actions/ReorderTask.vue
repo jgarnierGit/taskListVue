@@ -4,7 +4,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Task } from '~/Interfaces';
+import type { Task } from '~/types/Interfaces';
 
 /**
  * ReorderTask Component

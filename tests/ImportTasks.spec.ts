@@ -1,11 +1,9 @@
 // @vitest-environment nuxt
-import { assert, describe, expect, it, vitest } from 'vitest';
+import { describe, expect, it, vitest } from 'vitest';
 import ImportTasks from '../components/ImportTasks.vue';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
-import { type RootTask, TaskStatus, type Task } from '~/Interfaces';
-import { createWrapperEmpty } from './commons';
-import TaskManager from '~/components/TaskManager.vue';
-import { VueWrapper, flushPromises } from '@vue/test-utils';
+import { type RootTask, type Task } from '~/types/Interfaces';
+import { VueWrapper } from '@vue/test-utils';
 import { waitFor } from '@testing-library/vue';
 
 describe('Import tasks', () => {
@@ -29,18 +27,18 @@ describe('Import tasks', () => {
                 {
                     id: '1',
                     name: 'Task 1',
-                    status: TaskStatus.CREATED,
+                    isDone: false,
                     tasks: [{
                         id: '3',
                         name: 'Task 3',
-                        status: TaskStatus.CREATED,
+                        isDone: false,
                         tasks: [],
                     }],
                 },
                 {
                     id: '2',
                     name: 'Task 2',
-                    status: TaskStatus.DONE,
+                    isDone: true,
                     tasks: [],
                 },
             ]
@@ -65,18 +63,18 @@ describe('Import tasks', () => {
                 {
                     id: '1',
                     name: 'Task 1',
-                    status: TaskStatus.CREATED,
+                    isDone: false,
                     tasks: [{
                         id: '3',
                         name: 'Task 3',
-                        status: TaskStatus.CREATED,
+                        isDone: false,
                         tasks: [],
                     }],
                 },
                 {
                     id: '2',
                     name: 'Task 2',
-                    status: TaskStatus.DONE,
+                    isDone: true,
                     tasks: [],
                 },
             ]
@@ -104,18 +102,18 @@ describe('Import tasks', () => {
         const tasks = {
             tasks: [
                 {
-                    status: TaskStatus.CREATED,
+                    isDone: false,
                     tasks: [{
                         id: '3',
                         name: 'Task 3',
-                        status: TaskStatus.CREATED,
+                        isDone: false,
                         tasks: [],
                     }],
                 },
                 {
                     id: '2',
                     name: 'Task 2',
-                    status: TaskStatus.DONE,
+                    isDone: true,
                     tasks: [],
                 },
             ]
@@ -145,18 +143,18 @@ describe('Import tasks', () => {
                 {
                     id: '1',
                     name: 'Task 1',
-                    status: TaskStatus.CREATED,
+                    isDone: false,
                     tasks: [{
                         id: '1',
                         name: 'Task 3',
-                        status: TaskStatus.CREATED,
+                        isDone: false,
                         tasks: [],
                     }],
                 },
                 {
                     id: '2',
                     name: 'Task 2',
-                    status: TaskStatus.DONE,
+                    isDone: true,
                     tasks: [],
                 },
             ]

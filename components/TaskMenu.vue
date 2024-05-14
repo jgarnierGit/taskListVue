@@ -26,7 +26,7 @@
 import UpdateTaskStatus from './actions/UpdateTaskStatus.vue';
 import ReorderTask from './actions/ReorderTask.vue';
 import DeleteTask from './actions/DeleteTask.vue';
-import type { Task } from '~/Interfaces';
+import type { Task } from '~/types/Interfaces';
 
 defineProps<{
     task: Task,

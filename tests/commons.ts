@@ -1,5 +1,5 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { TaskStatus, type ITask } from "~/Interfaces";
+import { type ITask } from "~/types/Interfaces";
 import TasksList from "~/components/TasksList.vue";
 import { ref } from 'vue';
 import TaskManager from "~/components/TaskManager.vue";
@@ -30,23 +30,23 @@ export async function createWrapperWithData() {
         {
             id: "1",
             name: "1",
-            status: TaskStatus.CREATED,
+            isDone: false,
             tasks: [
                 {
                     id: "4",
                     name: "1.1",
-                    status: TaskStatus.CREATED,
+                    isDone: false,
                     tasks: [],
                 },
                 {
                     id: "2",
                     name: "1.2",
-                    status: TaskStatus.DONE,
+                    isDone: true,
                     tasks: [
                         {
                             id: "5",
                             name: "1.2.1",
-                            status: TaskStatus.DONE,
+                            isDone: true,
                             tasks: [],
                         },
                     ],
@@ -56,7 +56,7 @@ export async function createWrapperWithData() {
         {
             id: "3",
             name: "2",
-            status: TaskStatus.DONE,
+            isDone: true,
             tasks: [],
         },
     ]);

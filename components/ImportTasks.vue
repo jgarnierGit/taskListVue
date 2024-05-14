@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { z } from 'zod';
-import { TaskStatus, type RootTask } from '~/Interfaces';
+import { type RootTask } from '~/types/Interfaces';
 const rootTask = defineModel<RootTask>({ required: true });
 const emit = defineEmits(['importedTasksList']);
 /**
@@ -49,7 +49,7 @@ function importTasks(event: Event) {
 }
 
 function parseTasks(json: string): ImportResult {
-    const task = z.object({ id: z.string(), name: z.string(), status: z.nativeEnum(TaskStatus), tasks: z.object({}).array().optional() });
+    const task = z.object({ id: z.string(), name: z.string(), isDone: z.boolean(), tasks: z.object({}).array().optional() });
     type TaskType = z.infer<typeof task & { tasks: TaskType[] }>;
     const taskSchema: z.ZodType<TaskType> = task.extend({
         tasks: z.lazy(() => task.array()),

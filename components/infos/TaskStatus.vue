@@ -13,7 +13,7 @@
  * 
  */
 
-import { TaskStatus, type Task } from '~/Interfaces';
+import { type Task } from '~/types/Interfaces';
 const props = defineProps<{ task: Task }>();
-const isCompleted = computed(() => props.task.status === TaskStatus.DONE);
+const isCompleted = computed(() => !!props.task.isDone);
 </script>

@@ -4,7 +4,7 @@ import { assert, describe, expect, it } from "vitest";
 import { createWrapperWithData, createWrapperWithTask, getDirectComponentByTaskName, getTaskIdByName } from "../commons";
 import EditTaskName from "~/components/actions/EditTaskName.vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { TaskStatus, type Task } from "~/Interfaces";
+import { TaskStatus, type Task } from "~/types/Interfaces";
 import TaskManager from "~/components/TaskManager.vue";
 
 describe('DeleteTask.vue', () => {

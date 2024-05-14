@@ -5,7 +5,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime';
 import ReorderTask from '~/components/actions/ReorderTask.vue';
 import { createWrapperWithData, getTaskIdByName, getDirectComponentByTaskName, getTaskIndexByName } from '../commons';
 import TaskManager from '~/components/TaskManager.vue';
-import type { Task } from '~/Interfaces';
+import type { Task } from '~/types/Interfaces';
 import TasksList from '~/components/TasksList.vue';
 import TaskMenu from '~/components/TaskMenu.vue';
 

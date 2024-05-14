@@ -15,7 +15,7 @@
 
 import TaskStatus from './infos/TaskStatus.vue';
 import EditTaskName from './actions/EditTaskName.vue';
-import type { Task } from '~/Interfaces';
+import type { Task } from '~/types/Interfaces';
 
 defineProps<{ task: Task }>();
 </script>

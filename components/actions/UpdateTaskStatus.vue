@@ -13,10 +13,10 @@
  * @description Update task status to Created / Done
  * 
  */
-import { TaskStatus, type Task } from '~/Interfaces';
+import { type Task } from '~/types/Interfaces';
 
 const isCompleted = computed(() => {
-    return props.task.status === TaskStatus.DONE;
+    return !!props.task.isDone;
 });
 const props = defineProps<{ task: Task }>();
 const emit = defineEmits(['statusUpdate']);
