@@ -2,7 +2,7 @@
   <span>
     <v-text-field data-testid="edit-task-name" ref="taskNameInput" v-model="taskName" :rules="[required]"
       placeholder="Edit task name" persistent-placeholder :variant="getVariant" @click.stop="enableInput"
-      @blur="disableInput" @keydown.enter.stop="disableInput"></v-text-field>
+      @blur="disableInput" @keydown.enter.stop="disableInput" @keydown.space.stop></v-text-field>
   </span>
 </template>
 
