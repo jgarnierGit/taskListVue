@@ -3,14 +3,31 @@
         <v-icon>$dotsVertical</v-icon>
         <v-menu :activator="`#menu-activator-${index}`">
             <v-list>
+                <!-- reorder -->
                 <v-list-item>
-                    <ReorderTask :task="task" @up-order="upOrderFn" @down-order="downOrderFn" />
+                    <v-btn density="compact" id="up-reorder" @click="$emit('upOrder', task.id)">
+                        <v-icon>$transferUp</v-icon>
+                    </v-btn>
+                    <v-btn density="compact" id="down-reorder" @click="$emit('downOrder', task.id)">
+                        <v-icon>$transferDown</v-icon>
+                    </v-btn>
                 </v-list-item>
+                <!-- update status -->
                 <v-list-item>
-                    <UpdateTaskStatus :task="task" @status-update="updateFn" />
+                    <v-btn prepend-icon="$check" v-if="!isCompleted" id="complete-task"
+                        @click="$emit('statusUpdate', task.id)">
+                        Complete
+                    </v-btn>
+                    <v-btn prepend-icon="$autorenew" v-else id="unvalidate-task"
+                        @click="$emit('statusUpdate', task.id)">
+                        Undone
+                    </v-btn>
                 </v-list-item>
+                <!-- delete task -->
                 <v-list-item>
-                    <DeleteTask :taskId="task.id" @delete="deleteFn" />
+                    <v-btn density="compact" id="delete-task" @click="$emit('delete', task.id)">
+                        <v-icon>$trashCanOutline</v-icon>
+                    </v-btn>
                 </v-list-item>
             </v-list>
         </v-menu>
@@ -23,18 +40,16 @@
  * @description Menu interface for Task actions
  * 
  */
-import UpdateTaskStatus from './actions/UpdateTaskStatus.vue';
-import ReorderTask from './actions/ReorderTask.vue';
-import DeleteTask from './actions/DeleteTask.vue';
 import type { Task } from '~/types/Interfaces';
 
-defineProps<{
+const props = defineProps<{
     task: Task,
     index: string,
-    upOrderFn: (taskId: string) => void,//REVIEW: listing all the menu entries as props kinda defeat what we could expect from a flexible menu
-    downOrderFn: (taskId: string) => void,
-    deleteFn: (taskId: string) => void,
-    updateFn: (taskId: string) => void
 }>();
 
+defineEmits(['delete', 'upOrder', 'downOrder', 'statusUpdate']);
+
+const isCompleted = computed(() => {
+    return !!props.task.isDone;
+});
 </script>

@@ -1,132 +1,103 @@
 <template>
-    <AddTask @add-task="addTaskRoot" id="add-inline-root" v-if="!task.tasks.length" />
-    <v-list dense dark v-for="(subTask, index) in task.tasks" :key="subTask.id">
-        <AddTask :taskId="subTask.id" @add-task="addTaskBefore" v-if="!index" :id="`add-inline-before-${subTask.id}`" />
-        <v-list-group v-if="!!subTask.tasks.length">
-            <template v-slot:activator="{ props }">
-                <v-list-item v-bind="props">
-                    <TaskManager :task="subTask">
-                        <TaskMenu :task="subTask" :index="subTask.id" :upOrderFn="orderingUp"
-                            :downOrderFn="orderingDown" :deleteFn="deleteTask" :updateFn="updateStatus" />
-                    </TaskManager>
-                </v-list-item>
-            </template>
-            <TasksList :task="subTask" @update-parent-status="updateParentStatus" />
-        </v-list-group>
-        <AddTask v-else :taskId="subTask.id" @add-task="addTaskChild">
-            <!-- TODO add better labelling context like "Add Task inside/before/after {subTask.name}" -->
-            <TaskManager :task="subTask">
-                <TaskMenu :task="subTask" :index="subTask.id" :upOrderFn="orderingUp" :downOrderFn="orderingDown"
-                    :deleteFn="deleteTask" :updateFn="updateStatus" />
-            </TaskManager>
-            <!-- REVIEW: TaskManager and TaskMenu could be implemented differently to prevent repetition and nesting in AddTask-->
-            <!-- refactor the whole ui-->
-        </AddTask>
-        <AddTask :taskId="subTask.id" @add-task="addTaskAfter" :id="`add-inline-after-${subTask.id}`" />
-    </v-list>
+    <AddTask v-if="!index" :taskId="task.id" :id="`add-inline-before-${task.id}`" :label="`before ${task.name}`"
+        @add-task="addTaskBefore" />
+    <v-list-item v-if="!task.tasks.length">
+
+        <template v-slot:prepend>
+            <TaskMenu :task="task" :index="task.id" @up-order="orderingUp" @down-order="orderingDown"
+                @delete="deleteTask" @status-update="updateStatus" />
+        </template>
+        <template v-slot:append>
+            <AddTask :taskId="task.id" @add-task="addTaskChild" :label="`to ${task.name}`">
+                <v-btn density="compact" :id="`add-child-${task.id}`" @click="addTaskChild" icon="$plus">
+                </v-btn>
+            </AddTask>
+        </template>
+
+        <TaskManager :task="task" />
+    </v-list-item>
+
+    <v-list-group v-else>
+        <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props">
+
+                <template v-slot:prepend>
+                    <TaskMenu :task="task" :index="task.id" @up-order="orderingUp" @down-order="orderingDown"
+                        @delete="deleteTask" @status-update="updateStatus" />
+                </template>
+                <TaskManager :task="task" />
+
+            </v-list-item>
+        </template>
+
+        <v-list-item v-for="(subt, subi) in task.tasks">
+            <TasksList :task="subt" v-model:parent="task" :index="subi" @update-parent-status="updateParentStatus" />
+        </v-list-item>
+    </v-list-group>
+    <AddTask :taskId="task.id" :id="`add-inline-after-${task.id}`" :label="`after ${task.name}`"
+        @add-task="addTaskAfter" />
 </template>
 
 <script setup lang="ts">
 /**
  * TasksList Component
- * @description manage recursive Tasks List:
+ * @description manage recursive Tasks childs List:
  *  - a contextual editor menu for each Task
- *  - subLists
+ *  - Task child list
  */
-
-import { type TaskList, type Task } from '~/types/Interfaces';
-import AddTask from './actions/AddTask.vue';
-import { v4 as uuidv4 } from 'uuid';
+import type { Task, TaskList } from '~/types/Interfaces';
 
 
-const props = defineProps<{ task: TaskList }>();
-
+defineProps<{ index: number }>();
+const parent = defineModel('parent', { type: {} as PropType<TaskList>, required: true });
+const task = defineModel('task', { type: {} as PropType<Task>, required: true })
 const emit = defineEmits(['updateParentStatus']);
 
-
-function orderingUp(taskId: string) {
-    const index = props.task.tasks.findIndex((t) => t.id === taskId); //REVIEW: this is repeated many times
-    if (index <= 0) {
-        return;
-    }
-    const prevTask = props.task.tasks[index - 1];
-    const currentTask = props.task.tasks[index];
-    props.task.tasks[index - 1] = currentTask;
-    props.task.tasks[index] = prevTask;
-    // TODO use splice.
-}
-
-function orderingDown(taskId: string) {
-    const index = props.task.tasks.findIndex((t) => t.id === taskId);
-    if (index >= props.task.tasks.length - 1) {
-        return;
-    }
-    const prevTask = props.task.tasks[index + 1];
-    const currentTask = props.task.tasks[index];
-    props.task.tasks[index + 1] = currentTask;
-    props.task.tasks[index] = prevTask;
-    // TODO use splice.
-}
-
 function addTaskAfter(taskId: string) {
+    const index = findTaskIndex(parent.value, taskId);
     const newTask = createTask();
-    const index = props.task.tasks.findIndex((t) => t.id === taskId);
-
-    if (index === -1) {
-        throw new Error(`Task ${taskId} not found`);
-    }
-
-    props.task.tasks.splice(index + 1, 0, newTask);
+    parent.value.tasks.splice(index + 1, 0, newTask);
 }
 
 function addTaskBefore(taskId: string) {
+    const index = findTaskIndex(parent.value, taskId);
     const newTask = createTask();
-    const index = props.task.tasks.findIndex((t) => t.id === taskId);
-
-    if (index === -1) {
-        throw new Error(`Task ${taskId} not found`);
-    }
-
-    props.task.tasks.splice(index, 0, newTask);
+    parent.value.tasks.splice(index, 0, newTask);
 }
 
 function addTaskChild(taskId: string) {
+    const task = findTask(parent.value, taskId);
     const newTask = createTask();
-    const task = props.task.tasks.find((t) => t.id === taskId);
-
-    if (!task) {
-        throw new Error(`Task ${taskId} not found`);
-    }
-
     task.tasks.push(newTask);
 }
 
-
-function addTaskRoot() {
-    const newTask = createTask();
-    props.task.tasks.push(newTask);
+function orderingUp(taskId: string) {
+    const index = parent.value.tasks.findIndex((t) => t.id === taskId);
+    if (index <= 0) {
+        return;
+    }
+    const currentTask = parent.value.tasks[index];
+    parent.value.tasks.splice(index, 1);
+    parent.value.tasks.splice(index - 1, 0, currentTask)
 }
 
-function createTask() {
-    return { id: uuidv4(), name: 'New task', tasks: [], isDone: false };
+function orderingDown(taskId: string) {
+    const index = parent.value.tasks.findIndex((t) => t.id === taskId);
+    if (index >= parent.value.tasks.length - 1) {
+        return;
+    }
+    const currentTask = parent.value.tasks[index];
+    parent.value.tasks.splice(index, 1);
+    parent.value.tasks.splice(index + 1, 0, currentTask);
 }
 
 function deleteTask(taskId: string) {
-    const index = props.task.tasks.findIndex((t) => t.id === taskId);
-
-    if (index === -1) {
-        throw new Error(`Task ${taskId} not found`);
-    }
-    props.task.tasks.splice(index, 1);
+    const index = findTaskIndex(parent.value, taskId);
+    parent.value.tasks.splice(index, 1);
 }
 
-
 function updateStatus(taskId: string) {
-    const task = props.task.tasks.find((t) => t.id === taskId);
-
-    if (!task) {
-        throw new Error(`Task ${taskId} not found`);
-    }
+    const task = findTask(parent.value, taskId);
     if (task.isDone) {
         task.isDone = false;
     }
@@ -155,14 +126,24 @@ function checkChildsStatusDone(task: Task): Boolean {
 }
 
 function updateParentStatus() {
-    if (!(props.task as Task).name) {
+    if (!(parent.value as Task).name) {
         return;
     }
-    const areChildsDone = checkChildsStatusDone((props.task as Task));
-    if (areChildsDone && !((props.task as Task).isDone)) {
-        (props.task as Task).isDone = true;
+    const areChildsDone = checkChildsStatusDone((parent.value as Task));
+    if (areChildsDone && !((parent.value as Task).isDone)) {
+        (parent.value as Task).isDone = true;
         emit('updateParentStatus');
     }
 }
 
+
 </script>
+
+<style>
+/** reduce massive default indentation */
+.v-list-group {
+    --list-indent-size: 4px;
+    --parent-padding: var(--indent-padding);
+    --prepend-width: 4px;
+}
+</style>
