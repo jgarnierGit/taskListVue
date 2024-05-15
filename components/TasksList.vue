@@ -146,4 +146,12 @@ function updateParentStatus() {
     --parent-padding: var(--indent-padding);
     --prepend-width: 4px;
 }
+
+.v-list-item {
+    padding-right: 0px !important;
+}
+
+.v-list {
+    padding-right: 16px;
+}
 </style>

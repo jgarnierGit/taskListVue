@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import { type TaskList } from '~/types/Interfaces';
 const root = defineModel<TaskList>({ required: true });
+// used for the unit tests, make sure to wait the content to be loaded.
 const emit = defineEmits(['importedTasksList']);
 /**
  * ImportTasks Component
@@ -34,12 +35,8 @@ function importTasks(event: Event) {
         const result = event.target?.result as string;
         const importResult = parseTasks(result);
 
-        if (importResult.success) {
-            if (importResult.taskTree) {
-                replaceRoot(importResult.taskTree);
-            }
-        } else {
-            alert(importResult.error);
+        if (importResult) {
+            replaceRoot(importResult);
         }
     };
     reader.onerror = (event) => {
@@ -48,38 +45,27 @@ function importTasks(event: Event) {
     reader.readAsText(file);
 }
 
-function parseTasks(json: string): ImportResult {
-    const task = z.object({ id: z.string(), name: z.string(), isDone: z.boolean(), tasks: z.object({}).array().optional() });
-    //REVIEW: formatting could be improved to help readability
-    //REVIEW: this seems to be redundant with types from Interface file
+function parseTasks(json: string) {
+    // redundante with interface declaration, but I prefer to keep zod dedicated only for the parsing task.
+    const task = z.object({
+        id: z.string(),
+        name: z.string(),
+        isDone: z.boolean(),
+        tasks: z.object({}).array().optional()
+    });
     type TaskType = z.infer<typeof task & { tasks: TaskType[] }>;
     const taskSchema: z.ZodType<TaskType> = task.extend({
         tasks: z.lazy(() => task.array()),
     });
     const RootTaskSchema = z.object({ tasks: z.array(taskSchema) });
-    type RootTaskType = z.infer<typeof RootTaskSchema>;
-    const rootTaskFromString = (content: string): RootTaskType => {
-        return z.string().transform((_, ctx) => {
-            try {
-                return JSON.parse(content);
-            } catch (error) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: 'invalid json'
-                });
-                return z.never;
-            }
-        }).pipe(RootTaskSchema).parse(content);
-    }
     try {
-        const taskTree = rootTaskFromString(json);
-        // TODO test something really more straight forward
         const parseData = JSON.parse(json);
-        RootTaskSchema.parse(parseData);
-        return { success: true, taskTree: taskTree as TaskList };
-    } catch (error) {
-        return { success: false, error: 'Invalid JSON format' };
+        return RootTaskSchema.parse(parseData) as TaskList;
+    } catch (e) {
+        console.error(e);
+        alert("Error while parsing file structure, please refer to logs for further detail");
     }
+
 }
 
 function replaceRoot(newTree: TaskList) {
@@ -87,9 +73,4 @@ function replaceRoot(newTree: TaskList) {
     emit('importedTasksList');
 }
 
-interface ImportResult {
-    success: boolean;
-    taskTree?: TaskList;
-    error?: string;
-}
 </script>
