@@ -1,5 +1,5 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import TasksList from "~/components/TasksList.vue";
+import TasksList from "~/components/TasksSubList.vue";
 import { ref } from 'vue';
 import TaskManager from "~/components/TaskManager.vue";
 import { config } from '@vue/test-utils';
@@ -7,6 +7,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createVuetify } from 'vuetify';
 import type { TaskList } from "~/types/Interfaces";
+import TaskListTree from "~/components/TaskListTree.vue";
 
 const vuetify = createVuetify({
     components,
@@ -62,9 +63,9 @@ export async function createWrapperWithData() {
     ]);
     const root = { tasks: tasks.value };
 
-    return mountSuspended(TasksList, {
+    return mountSuspended(TaskListTree, {
         props: {
-            task: root,
+            modelValue: root,
         },
         global: {
             plugins: [vuetify]
@@ -84,10 +85,10 @@ export async function createWrapperWithTask(comp: any, task: TaskList) {
 
 export async function createWrapperEmpty() {
     const tasks = ref([]);
-    const root = { tasks: tasks.value };
-    return mountSuspended(TasksList, {
+    const root = { tasks: tasks.value } as TaskList;
+    return mountSuspended(TaskListTree, {
         props: {
-            task: root,
+            modelValue: root,
         },
     });
 }

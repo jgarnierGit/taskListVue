@@ -26,9 +26,14 @@ logs
 devlog.md
 package-lock.json
 
-.vscode
+.vscode/settings.json
 
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+__pycache__
+.pytest_cache
+
+*.mjs

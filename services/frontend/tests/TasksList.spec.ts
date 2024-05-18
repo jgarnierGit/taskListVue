@@ -1,12 +1,31 @@
 // @vitest-environment nuxt
 import { assert, describe, expect, it } from 'vitest';
 
-import TasksList from '@/components/TasksList.vue';
+import TasksList from '~/components/TasksSubList.vue';
 import TaskManager from '~/components/TaskManager.vue';
 import { createWrapperWithData, getDirectComponentByTaskId, getDirectComponentByTaskName, getIdsOrder, getTaskIdByName, getTaskIndexByName as getTaskFlatIndexByName, createWrapperEmpty } from './commons';
 import AddTask from '~/components/actions/AddTask.vue';
+import { mountSuspended } from '@nuxt/test-utils/runtime';
 
-describe('TasksList.vue', () => {
+/** 
+it('displays message', async () => {
+    const wrapper = await mountSuspended({
+        template: '<v-layout><hello-world></hello-world></v-layout>'
+    }, {
+        props: {},
+        global: {
+            components: {
+                HelloWorld, 
+            },
+            plugins: [vuetify],
+        }
+    })
+
+    // Assert the rendered text of the component
+    expect(wrapper.text()).toContain('Components')
+})*/
+
+describe('TasksSubList.vue', () => {
     describe('Rendering recursive list', () => {
 
         it('renders empty', async () => {
@@ -20,9 +39,6 @@ describe('TasksList.vue', () => {
             const subTaskIds = getIdsOrder();
 
             const wrapper = await createWrapperWithData();
-            // expecting 2 level list
-            const listComponents = wrapper.findAllComponents(TasksList);
-            expect(listComponents).toHaveLength(2);
             // expecting 5 tasks
             const taskComponents = wrapper.findAllComponents(TaskManager);
             expect(taskComponents).toHaveLength(5);

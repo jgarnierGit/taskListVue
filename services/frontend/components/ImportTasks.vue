@@ -3,18 +3,22 @@
 </template>
 
 <script setup lang="ts">
-import { z } from 'zod';
-import { type TaskList } from '~/types/Interfaces';
-const root = defineModel<TaskList>({ required: true });
-// used for the unit tests, make sure to wait the content to be loaded.
-const emit = defineEmits(['importedTasksList']);
 /**
  * ImportTasks Component
  * @description JSON tasks importer
  * 
  */
 
-function importTasks(event: Event) {
+import axios from 'axios';
+import { z } from 'zod';
+import { type TaskList } from '~/types/Interfaces';
+const root = defineModel<TaskList>({ required: true });
+// used for the unit tests, make sure to wait the content to be loaded.
+const emit = defineEmits(['importedTasksList']);
+
+const API_BASE_URL = 'http://localhost:5000';
+
+async function importTasks(event: Event) {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
 
@@ -23,27 +27,49 @@ function importTasks(event: Event) {
         return;
     }
 
+    let importResult;
+
     const maxSize = 1 * 1024 * 1024; // 1 MB
 
     if (file.size > maxSize) {
-        alert(`File too large, need server file loading, and requires lazy loading`);
-        return;
+        importResult = await readServerSide(file);
     }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        const result = event.target?.result as string;
-        const importResult = parseTasks(result);
-
-        if (importResult) {
-            replaceRoot(importResult);
-        }
-    };
-    reader.onerror = (event) => {
-        alert(`Error reading file: ${event.target?.error}`);
-    };
-    reader.readAsText(file);
+    else {
+        importResult = await readClientSide(file);
+    }
+    if (importResult) {
+        replaceRoot(importResult);
+    }
 }
+
+async function readServerSide(file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+        const response = await axios.post(`${API_BASE_URL}/upload`, formData)
+        return response.data as TaskList;
+    } catch (e: any) {
+        console.error(e);
+        alert(`Error while parsing file structure server side:  please refer to logs for further detail`);
+    }
+}
+
+async function readClientSide(file: File): Promise<TaskList | undefined> {
+    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+        reader.onload = (event) => {
+            const result = event.target?.result as string;
+            resolve(parseTasks(result));
+        };
+        reader.onerror = (event) => {
+            alert(`Error reading file: ${event.target?.error}`);
+            reject();
+        };
+        reader.readAsText(file);
+    });
+}
+
 
 function parseTasks(json: string) {
     // redundante with interface declaration, but I prefer to keep zod dedicated only for the parsing task.

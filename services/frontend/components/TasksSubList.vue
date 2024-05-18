@@ -31,7 +31,7 @@
         </template>
 
         <v-list-item v-for="(subt, subi) in task.tasks">
-            <TasksList :task="subt" v-model:parent="task" :index="subi" @update-parent-status="updateParentStatus" />
+            <TasksSubList :task="subt" v-model:parent="task" :index="subi" @update-parent-status="updateParentStatus" />
         </v-list-item>
     </v-list-group>
     <AddTask :taskId="task.id" :id="`add-inline-after-${task.id}`" :label="`after ${task.name}`"
