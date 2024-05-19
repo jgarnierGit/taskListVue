@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
-from .main import app, TaskList, Task
+from .main import app, process_json_file
 import json
+import time
 
 client = TestClient(app)
 
@@ -31,9 +32,16 @@ def test_upload():
     }
     
     json_bytes = json.dumps(json_data).encode()
-    response = client.post("/upload", files={"file": ("tasks.json", json_bytes, "application/json")})
-    assert response.status_code == 200
-    assert response.json() == json_data
+    response = process_json_file(json_bytes)
+    assert response == json_data
+
+def wait_job_result(response):
+    # waiting the job result
+    content = response.content.decode()
+    job_id, = json.loads(content).values()
+    # waiting the content to be loaded
+    time.sleep(1)
+    return client.get(f"/job/{str(job_id)}")
 
 def test_upload_fails_malformed():
     # Create a sample JSON file
@@ -41,7 +49,14 @@ def test_upload_fails_malformed():
     
     json_bytes = json_data.encode()
     response = client.post("/upload", files={"file": ("tasks.json", json_bytes, "application/json")})
-    assert response.status_code == 400
+    print(response)
+    assert response.status_code == 200
+    response = wait_job_result(response)
+    assert response.status_code == 200
+    json_response = response.json()
+    assert json_response["status"] == "error"
+    assert json_response["result"]["status_code"] == 400
+    assert json_response["result"]["type"] == "ijson.common.IncompleteJSONError"
 
 def test_upload_fails_required():
     # Create a sample JSON file
@@ -71,7 +86,14 @@ def test_upload_fails_required():
     
     json_bytes = json.dumps(json_data).encode()
     response = client.post("/upload", files={"file": ("tasks.json", json_bytes, "application/json")})
-    assert response.status_code == 400
+    assert response.status_code == 200
+    response = wait_job_result(response)
+    assert response.status_code == 200
+    json_response = response.json()
+    assert json_response["status"] == "error"
+    assert json_response["result"]["status_code"] == 400
+    assert json_response["result"]["type"] == "AssertionError"
+
 
 def test_upload_fails_root_malformed():
     # Create a sample JSON file
@@ -102,4 +124,10 @@ def test_upload_fails_root_malformed():
     
     json_bytes = json.dumps(json_data).encode()
     response = client.post("/upload", files={"file": ("tasks.json", json_bytes, "application/json")})
-    assert response.status_code == 400
+    assert response.status_code == 200
+    response = wait_job_result(response)
+    assert response.status_code == 200
+    json_response = response.json()
+    assert json_response["status"] == "error"
+    assert json_response["result"]["status_code"] == 400
+    assert json_response["result"]["type"] == "ValueError"

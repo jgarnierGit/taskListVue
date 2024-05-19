@@ -28,6 +28,7 @@ package-lock.json
 
 .vscode/settings.json
 
+/data
 /test-results/
 /playwright-report/
 /blob-report/

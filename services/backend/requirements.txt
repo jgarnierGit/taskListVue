@@ -1,4 +1,4 @@
 fastapi
+ijson
 pydantic
 uvicorn
-ijson

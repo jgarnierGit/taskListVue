@@ -1,5 +1,8 @@
 <template>
-    <v-file-input accept=".json" label="Import a tasks file description (JSON)" @change="importTasks"></v-file-input>
+    <v-progress-linear indeterminate v-if="jobId"></v-progress-linear>
+    <v-file-input v-else accept=".json" label="Import a tasks file description (JSON)"
+        @change="importTasks"></v-file-input>
+
 </template>
 
 <script setup lang="ts">
@@ -15,6 +18,7 @@ import { type TaskList } from '~/types/Interfaces';
 const root = defineModel<TaskList>({ required: true });
 // used for the unit tests, make sure to wait the content to be loaded.
 const emit = defineEmits(['importedTasksList']);
+const jobId = ref("")
 
 const API_BASE_URL = 'http://localhost:5000';
 
@@ -46,12 +50,52 @@ async function readServerSide(file: File) {
     const formData = new FormData()
     formData.append('file', file)
 
+    // handcrafted watcher for job status
+    const interceptor = axios.interceptors.response.use(function (r) {
+        /** HTTP 2XX */
+        const { data, config } = r;
+        if (data && data.status === "pending") {
+            // @ts-ignore
+            if (!config.retry) {
+                return Promise.reject(r);
+            }
+            // @ts-ignore
+            config.retry -= 1;
+            const retryPromise = new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("retry the request", config.url);
+                    resolve(r);
+                },
+                    // @ts-ignore
+                    config.retryDelay || 1000);
+            });
+            return retryPromise.then(() => axios(config));
+        }
+        return r;
+    }, function (err) {
+        /** HTTP > 2XX */
+        return err;
+    });
+
     try {
         const response = await axios.post(`${API_BASE_URL}/upload`, formData)
-        return response.data as TaskList;
+        jobId.value = response.data.job_id;
+
+        // @ts-ignore , already an ugly hack waiting for a broker + task queue
+        const jobResult = await axios.get(`${API_BASE_URL}/job/${jobId.value}`, { retry: 50, retryDelay: 500 });
+        if (!jobResult.data || !jobResult.data.result || jobResult.data.status === "error") {
+            alert(`Error while parsing file structure server side:  please refer to logs for further detail`);
+            console.error(jobResult?.data?.result);
+            return
+        }
+        replaceRoot(jobResult.data.result);
     } catch (e: any) {
         console.error(e);
         alert(`Error while parsing file structure server side:  please refer to logs for further detail`);
+    }
+    finally {
+        jobId.value = "";
+        axios.interceptors.response.eject(interceptor);
     }
 }
 
