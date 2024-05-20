@@ -19,7 +19,7 @@
  * 
  */
 
-import type { Task } from '~/types/Interfaces';
+import type { Task } from '~/commons/Interfaces';
 
 const props = defineProps<{ task: Task }>();
 

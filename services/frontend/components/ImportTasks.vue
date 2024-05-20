@@ -14,13 +14,13 @@
 
 import axios from 'axios';
 import { z } from 'zod';
-import { type TaskList } from '~/types/Interfaces';
+import { type LazyLoadedNode, type TaskList } from '~/commons/Interfaces';
+import { API_BASE_URL } from '~/commons/const';
 const root = defineModel<TaskList>({ required: true });
 // used for the unit tests, make sure to wait the content to be loaded.
 const emit = defineEmits(['importedTasksList']);
 const jobId = ref("")
-
-const API_BASE_URL = 'http://localhost:5000';
+const store = useLazyLoadingStore();
 
 async function importTasks(event: Event) {
     const target = event.target as HTMLInputElement;
@@ -88,7 +88,9 @@ async function readServerSide(file: File) {
             console.error(jobResult?.data?.result);
             return
         }
-        replaceRoot(jobResult.data.result);
+        const rootNode = jobResult.data.result as LazyLoadedNode;
+        replaceRoot(rootNode.tree);
+        store.resetLazyLoadedIdsWith(rootNode.lazyLoadedIds);
     } catch (e: any) {
         console.error(e);
         alert(`Error while parsing file structure server side:  please refer to logs for further detail`);

@@ -4,7 +4,7 @@ import * as directives from 'vuetify/directives';
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles';
 import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
-import { mdiAutorenew, mdiCheck, mdiDotsVertical, mdiDownload, mdiPencil, mdiPlus, mdiTransferDown, mdiTransferUp, mdiTrashCanOutline } from '@mdi/js';
+import { mdiAutorenew, mdiCheck, mdiChevronDown, mdiChevronUp, mdiDotsVertical, mdiDownload, mdiPencil, mdiPlus, mdiTransferDown, mdiTransferUp, mdiTrashCanOutline } from '@mdi/js';
 
 export default defineNuxtPlugin((nuxtApp) => {
     const vuetify = createVuetify({
@@ -25,7 +25,9 @@ export default defineNuxtPlugin((nuxtApp) => {
                 download: mdiDownload,
                 check: mdiCheck,
                 autorenew: mdiAutorenew,
-                pencil: mdiPencil
+                pencil: mdiPencil,
+                chevronDown: mdiChevronDown,
+                chevronUp: mdiChevronUp
             },
             sets: {
                 mdi,

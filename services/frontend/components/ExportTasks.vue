@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import type { TaskList } from '~/types/Interfaces';
+import type { TaskList } from '~/commons/Interfaces';
 
 /**
  * ExportTasks Component

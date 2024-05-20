@@ -1,6 +1,6 @@
 # Task List
 
-using frontend : Vue3, Nuxt3, Vuetify, Vitest and PlayWright
+using frontend : Vue3, Nuxt3, Pinia, Vuetify, Vitest and PlayWright
 
 using backend : python3, FastAPI, pytest
 
@@ -30,6 +30,10 @@ Start the development server on `http://localhost:3000`:
 > /services/frontend
 npm run dev
 ```
+
+### Swagger
+
+`0.0.0.0:5000/docs`
 
 ## Debug from source remotely
 

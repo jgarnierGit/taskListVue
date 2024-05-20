@@ -2,7 +2,7 @@
 import { describe, expect, it, vitest } from 'vitest';
 import ImportTasks from '../components/ImportTasks.vue';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
-import { type Task, type TaskList } from '~/types/Interfaces';
+import { type Task, type TaskList } from '~/commons/Interfaces';
 import { VueWrapper } from '@vue/test-utils';
 import { waitFor } from '@testing-library/vue';
 

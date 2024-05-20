@@ -6,7 +6,7 @@ import { config } from '@vue/test-utils';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createVuetify } from 'vuetify';
-import type { TaskList } from "~/types/Interfaces";
+import type { TaskList } from "~/commons/Interfaces";
 import TaskListTree from "~/components/TaskListTree.vue";
 
 const vuetify = createVuetify({

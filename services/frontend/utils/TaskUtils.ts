@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { Task, TaskList } from '~/types/Interfaces';
+import type { Task, TaskList } from '~/commons/Interfaces';
 
 export function createTask() {
     return { id: uuidv4(), name: 'New task', tasks: [], isDone: false };
