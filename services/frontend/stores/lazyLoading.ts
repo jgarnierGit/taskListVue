@@ -7,7 +7,8 @@ export const useLazyLoadingStore = defineStore('lazyLoading', () => {
 
     // getters
     const isIdLazyLoaded: ComputedRef<(id: string) => boolean> = computed(() => (id: string) => !!lazyLoadedIds.value.find((idx) => idx === id));
-    const isLoading: ComputedRef<(id: string) => boolean> = computed(() => (id: string) => loadingId.value === id);
+    const isTaskLoading: ComputedRef<(id: string) => boolean> = computed(() => (id: string) => loadingId.value === id);
+    const isLoadingRunning = computed(() => !!loadingId.value);
 
     // actions
     function resetLazyLoadedIdsWith(ids: string[]) {
@@ -38,7 +39,8 @@ export const useLazyLoadingStore = defineStore('lazyLoading', () => {
     return {
         endIdLoading,
         isIdLazyLoaded,
-        isLoading,
+        isTaskLoading,
+        isLoadingRunning,
         lazyLoadedIds,
         loadingId,
         resetLazyLoadedIdsWith,

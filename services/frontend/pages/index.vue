@@ -2,15 +2,20 @@
   <v-card class="mx-auto" width="600">
     <v-toolbar dark>
       <v-toolbar-title>
-        Tasks list
+        Tasks manager
       </v-toolbar-title>
     </v-toolbar>
-    <ImportTasks v-model="root" />
-    <ExportTasks :task="root" />
-
-    <div>
-      Start creating by clicking below
-    </div>
+    <v-divider :thickness="5" />
+    <v-progress-linear indeterminate v-if="store.isLoadingRunning"></v-progress-linear>
+    <v-toolbar>
+      <v-toolbar-items class="import-export">
+        <ImportTasks v-model="root" />
+      </v-toolbar-items>
+      <v-divider vertical></v-divider>
+      <v-toolbar-items class="import-export">
+        <ExportTasks :task="root" />
+      </v-toolbar-items>
+    </v-toolbar>
     <v-divider :thickness="5" />
     <TaskListTree v-model="root" />
   </v-card>
@@ -23,42 +28,15 @@
  * 
  */
 import type { TaskList } from '~/commons/Interfaces';
-
-const tasks = [
-  {
-    id: "1",
-    name: "1",
-    isDone: false,
-    tasks: [
-      {
-        id: "4",
-        name: "1.1",
-        isDone: false,
-        tasks: [],
-      },
-      {
-        id: "2",
-        name: "1.2",
-        isDone: true,
-        tasks: [
-          {
-            id: "5",
-            name: "1.2.1",
-            isDone: true,
-            tasks: [],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "3",
-    name: "2",
-    isDone: true,
-    tasks: [],
-  },
-];
+const store = useLazyLoadingStore();
 
 const root: TaskList = reactive({ tasks: [] });
 
 </script>
+
+<style>
+.v-toolbar-items.import-export {
+  flex: 1 1 content;
+  column-gap: 20px;
+}
+</style>

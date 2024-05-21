@@ -1,62 +1,122 @@
 # Task List
 
-using frontend : Vue3, Nuxt3, Pinia, Vuetify, Vitest and PlayWright
 
-using backend : python3, FastAPI, pytest
+
+## Overview
+
+Frontend : [Vue3](https://vuejs.org/), [Nuxt3](https://nuxt.com/), [Pinia](https://pinia.vuejs.org/), [Vuetify3](https://vuetifyjs.com/), [Vitest](https://vitejs.dev) and [Playwright](https://playwright.dev/)
+
+Backend : [python3](https://www.python.org/), [FastAPI](https://fastapi.tiangolo.com/), [pytest](https://docs.pytest.org)
+
+Monitoring : [Grafana](https://grafana.com/), [Prometheus](https://prometheus.io/) with [cAdvisor](https://github.com/google/cadvisor) and [node-exporter](https://github.com/prometheus/node_exporter)
+
+## Functionalities
+
+Recursive task manager, with import / export JSON file and lazy loading management.
+
+If you want to play with monitoring :
+  1. Go to Grafana administration, and visualize `Docker Containers ` and `Docker Host` to monitor respectively Docker containers performances and host performances.
+  2. You can can generate your own random task tree via the `/generate` endpoint. The file will be generated in `./data`
+  3. Try importing the generated JSON file with degraded perfs activated (checkbox activated).
+
+**tips:**
+
+Maybe check your .wslconfig, especially for small Hardware configuration :
+
+```
+[wsl2]
+memory=1GB
+processors=4
+```
 
 ## Setup
 
 Make sure to install the dependencies:
 
-Docker, npm
+[Docker](https://www.docker.com/), [npm](https://www.npmjs.com/)
 
-## Dev
+## Start up
 
-Start the development backend on `http://localhost:5000`:
-
-```bash
-> /
-docker compose up dev
-```
-add `--build` option if compose config changed
-
-launch and attach `debugpy` on `0.0.0.0:5678`
-
-include `--wait-for-client` to debugpy if you need to debug from the start
-
-Start the development server on `http://localhost:3000`:
+- frontend (`http://localhost:8000`)
 
 ```bash
 > /services/frontend
 npm run dev
 ```
 
-### Swagger
+- backend (`http://localhost:5000`)
 
-`0.0.0.0:5000/docs`
+    set up `PYTHON_DATA_DIR` for the JSON generator (default=`/tmp/data`)
+```bash
+docker compose up
+```
+or
+```bash
+docker compose --profile monitor up -d #starts also monitoring
+```
 
-## Debug from source remotely
+- Monitoring Grafana (`http://localhost:3000`)
 
-listen to 0.0.0.0:5678
+    login : admin/admin
+
+  - Prometheus (`http://localhost:9090`)
+
+```bash
+docker compose up grafana  #starts only monitoring
+```
+
+- API docs (`http://localhost:5000/docs`)
+
+## debug
+
+- backend
+  
+Launch and attach `debugpy` on `0.0.0.0:5678`
+Include `--wait-for-client` to debugpy if you need to debug server from the launch
 
 ## tests
 
-see [backend](./services/backend/README.md)
-
-see [fronted](./services/frontend/README.md)
-
-## Production
-
-Build the application for production:
+- backend
 
 ```bash
-npm run build
+docker exec -it <containerID> /bin/bash
+pytest
 ```
 
-Locally preview production build:
+- frontend unit test
 
 ```bash
-npm run preview
+> /services/frontend
+npm run test
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- frontend e2e test
+
+```bash
+> /services/frontend
+npm run dev
+npm run test:e2e
+```
+
+## Configuration
+
+
+### Grafana dashboard
+
+Following the recommandation given by [stefanprodan](https://github.com/stefanprodan) in its [Grafana template](https://github.com/stefanprodan/dockprom), big thanks to him :
+
+For storage and particularly Storage Load graph, you have to specify the fstype in grafana graph request.
+You can find it in `grafana/provisioning/dashboards/docker_containers.json`, at line 406 :
+
+```yaml
+"expr": "(node_filesystem_size_bytes{fstype=\"ext4\"} - node_filesystem_free_bytes{fstype=\"ext4\"}) / node_filesystem_size_bytes{fstype=\"ext4\"}  * 100"，
+```
+
+I work on ext4, so i need to change `btrfs` to `ext4`.
+
+You can find right value for your system in Prometheus `http://<host-ip>:9090` launching this request :
+
+```yaml
+node_filesystem_size_bytes
+node_filesystem_free_bytes
+```

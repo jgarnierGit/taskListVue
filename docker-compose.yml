@@ -1,20 +1,11 @@
 version: '3.8'
 
 services:
+  # backend
   backend:
     stdin_open: true
     tty: true
-    build: ./services/backend
-    ports:
-      - 5000:5000
-    volumes:
-      - ./services/backend:/app
-      - ./data:/data
-    environment:
-      - PYTHON_DATA_DIR=/data
-  dev:
-    stdin_open: true
-    tty: true
+    container_name: python-backend-dev
     build: 
       context: ./services/backend
       dockerfile: Dockerfile_dev
@@ -26,5 +17,87 @@ services:
       - ./data:/data
     environment:
       - PYTHON_DATA_DIR=/data
+
+  # monitoring
+  grafana:
+    image: grafana/grafana 
+    container_name: grafana
+    depends_on:
+      - prometheus
+      - cadvisor
+      - nodeexporter
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./services/monitoring/data/grafana:/var/lib/grafana
+      - ./services/monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./services/monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    networks:
+      - monitoring
     profiles:
-      - dev
+      - monitor
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./services/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./services/monitoring/data/prometheus:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+    profiles:
+      - monitor
+
+  nodeexporter:
+    image: prom/node-exporter:latest
+    container_name: nodeexporter
+    restart: unless-stopped
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    expose:
+      - 9100
+    networks:
+      - monitoring
+    profiles:
+      - monitor
+
+  cadvisor:
+    image: google/cadvisor:latest
+    container_name: cadvisor
+    privileged: true
+    restart: always
+    expose:
+      - 8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    networks:
+      - monitoring
+    profiles:
+      - monitor
+      
+networks:
+  monitoring:
+    driver: bridge

@@ -15,8 +15,8 @@ def process_json_file(file_content: BinaryIO) -> LazyLoadedNode:
     global task_tree
     task_tree = TaskList()
     root_tasks = []
-    tasks_stack: list[TaskBuilder] = []
-    childs_dicts: list[dict[str,Task]] = []
+    tasks_stack: List[TaskBuilder] = []
+    childs_dicts: List[dict[str,Task]] = []
     objects = ijson.parse(file_content)
     for prefix, event, value in objects:
         if event == "start_map" and prefix.endswith("tasks.item"):
@@ -43,13 +43,13 @@ def process_json_file(file_content: BinaryIO) -> LazyLoadedNode:
             tasks_stack.pop()
     task_tree.tasks = root_tasks
     lazy_loaded_ids :List[str] = []
-    limited_tree = load_first_levels(lazy_loaded_ids)
+    limited_tree = load_first_levels(task_tree, lazy_loaded_ids)
     lazyNode = LazyLoadedNode(tree=limited_tree, lazyLoadedIds=lazy_loaded_ids)
     return lazyNode.to_dict()
 
 def load_tasks_chunk(task: Task, lazy_loaded_ids: List[str], max_depth:int) -> Task:
     """
-        Provides a copy of the task with the given depth childs.
+        Rercursive task tree truncator
         :param task: the task node to return, make sure to provide a copy of the original
         :param lazy_loaded_ids: list of the leaf tasks with unloaded childs
         :param max_depth: depth of the task childs tree to return
@@ -65,8 +65,13 @@ def load_tasks_chunk(task: Task, lazy_loaded_ids: List[str], max_depth:int) -> T
     task["tasks"] = [load_tasks_chunk(dict(subtask), lazy_loaded_ids, max_depth - 1) for subtask in task["tasks"]]
     return task
 
-def load_first_levels(lazy_loaded_ids: List[str]):
-    global task_tree
+def load_first_levels(task_tree: TaskList, lazy_loaded_ids: List[str]):
+    """
+    Taking a tree root, returns only the first level depth
+    :param task_tree: TaskList to process
+    :lazy_loaded_ids: list of the leaf tasks with unloaded childs
+    :return TaskList as dict truncated at the first level depth
+    """
     task_tree_limited = dict()
     task_tree_limited["tasks"] = [load_tasks_chunk(dict(task), lazy_loaded_ids, 1) for task in task_tree.tasks]
     return task_tree_limited
@@ -75,8 +80,8 @@ def write_file():
     MAX_DEPTH = 5
     MAX_CHILD_TASKS = 10
     MAX_NAME_LENGTH = 10
-    NUM_TASKS = 2
-    def generateTask(tasks:list[Task] = []):
+    NUM_TASKS = 5
+    def generateTask(tasks:List[Task] = []):
         return Task(
             id=str(uuid4()),
             name="".join(random.choices(string.ascii_lowercase, k=MAX_NAME_LENGTH)), 

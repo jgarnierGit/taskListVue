@@ -32,7 +32,7 @@
 
             </v-list-item>
         </template>
-        <v-skeleton-loader type="list-item" v-if="isLoading"></v-skeleton-loader>
+        <v-skeleton-loader type="list-item" v-if="isTaskLoading"></v-skeleton-loader>
         <v-list-item v-else v-for="(subt, subi) in task.tasks">
             <TasksSubList :task="subt" v-model:parent="task" :index="subi" @update-parent-status="updateParentStatus" />
         </v-list-item>
@@ -59,8 +59,8 @@ const emit = defineEmits(['updateParentStatus']);
 
 const store = useLazyLoadingStore();
 const isLazyLoaded = computed(() => store.isIdLazyLoaded(task.value.id));
-const isLoading = computed(() => store.isLoading(task.value.id));
-const lazyLoadIcon = computed(() => isLoading.value ? "$chevronUp" : "$chevronDown")
+const isTaskLoading = computed(() => store.isTaskLoading(task.value.id));
+const lazyLoadIcon = computed(() => isTaskLoading.value ? "$chevronUp" : "$chevronDown")
 
 function addTaskAfter(taskId: string) {
     const index = findTaskIndex(parent.value, taskId);

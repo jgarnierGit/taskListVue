@@ -1,8 +1,9 @@
 <template>
-    <v-progress-linear indeterminate v-if="jobId"></v-progress-linear>
-    <v-file-input v-else accept=".json" label="Import a tasks file description (JSON)"
-        @change="importTasks"></v-file-input>
-
+    <v-file-input accept=".json" label="Import JSON" @change="importTasks">
+    </v-file-input>
+    <v-checkbox v-model="isDegraded">
+        <v-tooltip activator="parent" location="top">Import with degraded performances</v-tooltip>
+    </v-checkbox>
 </template>
 
 <script setup lang="ts">
@@ -17,9 +18,9 @@ import { z } from 'zod';
 import { type LazyLoadedNode, type TaskList } from '~/commons/Interfaces';
 import { API_BASE_URL } from '~/commons/const';
 const root = defineModel<TaskList>({ required: true });
+const isDegraded = ref(false);
 // used for the unit tests, make sure to wait the content to be loaded.
 const emit = defineEmits(['importedTasksList']);
-const jobId = ref("")
 const store = useLazyLoadingStore();
 
 async function importTasks(event: Event) {
@@ -34,70 +35,93 @@ async function importTasks(event: Event) {
     let importResult;
 
     const maxSize = 1 * 1024 * 1024; // 1 MB
-
+    store.setIdLoading("ROOT");
     if (file.size > maxSize) {
-        importResult = await readServerSide(file);
+        if (isDegraded.value) {
+            importResult = await readServerSideDegraded(file);
+        } else {
+            importResult = await readServerSide(file);
+        }
     }
     else {
         importResult = await readClientSide(file);
     }
     if (importResult) {
         replaceRoot(importResult);
+        store.endIdLoading();
     }
 }
 
 async function readServerSide(file: File) {
-    const formData = new FormData()
-    formData.append('file', file)
-
-    // handcrafted watcher for job status
-    const interceptor = axios.interceptors.response.use(function (r) {
-        /** HTTP 2XX */
-        const { data, config } = r;
-        if (data && data.status === "pending") {
-            // @ts-ignore
-            if (!config.retry) {
-                return Promise.reject(r);
+    return await processServerSide(file, async (formData) => {
+        // handcrafted watcher for job status
+        const interceptor = axios.interceptors.response.use(function (r) {
+            /** HTTP 2XX */
+            const { data, config } = r;
+            if (data && data.status === "pending") {
+                // @ts-ignore
+                if (!config.retry) {
+                    return Promise.reject(r);
+                }
+                // @ts-ignore
+                config.retry -= 1;
+                const retryPromise = new Promise((resolve) => {
+                    setTimeout(() => {
+                        console.log("retry the request", config.url);
+                        resolve(r);
+                    },
+                        // @ts-ignore
+                        config.retryDelay || 1000);
+                });
+                return retryPromise.then(() => axios(config));
             }
-            // @ts-ignore
-            config.retry -= 1;
-            const retryPromise = new Promise((resolve) => {
-                setTimeout(() => {
-                    console.log("retry the request", config.url);
-                    resolve(r);
-                },
-                    // @ts-ignore
-                    config.retryDelay || 1000);
-            });
-            return retryPromise.then(() => axios(config));
-        }
-        return r;
-    }, function (err) {
-        /** HTTP > 2XX */
-        return err;
-    });
+            return r;
+        }, function (err) {
+            /** HTTP > 2XX */
+            return err;
+        });
 
-    try {
         const response = await axios.post(`${API_BASE_URL}/upload`, formData)
-        jobId.value = response.data.job_id;
+        try {
+            // @ts-ignore , already an ugly hack waiting for a broker + task queue
+            const jobResponse = await axios.get(`${API_BASE_URL}/job/${response.data.job_id}`, { retry: 50, retryDelay: 500 });
+            if (!jobResponse.data || !jobResponse.data.result || jobResponse.data.status === "error") {
+                alert(`Error while parsing file structure server side:  please refer to logs for further detail`);
+                console.error(jobResponse?.data?.result);
+                return
+            }
+            return jobResponse.data.result as LazyLoadedNode;
+        } finally {
+            axios.interceptors.response.eject(interceptor);
+        }
 
-        // @ts-ignore , already an ugly hack waiting for a broker + task queue
-        const jobResult = await axios.get(`${API_BASE_URL}/job/${jobId.value}`, { retry: 50, retryDelay: 500 });
-        if (!jobResult.data || !jobResult.data.result || jobResult.data.status === "error") {
+    });
+}
+
+async function readServerSideDegraded(file: File) {
+    return await processServerSide(file, async (formData) => {
+        const response = await axios.post(`${API_BASE_URL}/uploadDegraded`, formData);
+        if (!response.data) {
             alert(`Error while parsing file structure server side:  please refer to logs for further detail`);
-            console.error(jobResult?.data?.result);
+            console.error(response);
             return
         }
-        const rootNode = jobResult.data.result as LazyLoadedNode;
-        replaceRoot(rootNode.tree);
-        store.resetLazyLoadedIdsWith(rootNode.lazyLoadedIds);
+        return response.data;
+    });
+}
+
+async function processServerSide(file: File, callback: (formData: FormData) => Promise<LazyLoadedNode | undefined>) {
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+        const rootNode = await callback(formData);
+        if (rootNode) {
+            store.resetLazyLoadedIdsWith(rootNode.lazyLoadedIds);
+            return rootNode.tree;
+        }
     } catch (e: any) {
         console.error(e);
         alert(`Error while parsing file structure server side:  please refer to logs for further detail`);
-    }
-    finally {
-        jobId.value = "";
-        axios.interceptors.response.eject(interceptor);
     }
 }
 
@@ -118,7 +142,6 @@ async function readClientSide(file: File): Promise<TaskList | undefined> {
 
 
 function parseTasks(json: string) {
-    // redundante with interface declaration, but I prefer to keep zod dedicated only for the parsing task.
     const task = z.object({
         id: z.string(),
         name: z.string(),

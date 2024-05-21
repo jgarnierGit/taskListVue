@@ -1,5 +1,5 @@
 <template>
-    <v-btn density="compact" id="export-tasks" @click="exportTasks">
+    <v-btn block id="export-tasks" @click="exportTasks" :disabled="isEmptyList">
         <v-icon>$download</v-icon>
         Export Tasks
     </v-btn>
@@ -14,6 +14,7 @@ import type { TaskList } from '~/commons/Interfaces';
  * 
  */
 const props = defineProps<{ task: TaskList }>();
+const isEmptyList = computed(() => props.task.tasks.length === 0);
 
 function exportTasks() {
     const json = JSON.stringify(props.task, null, 2);
