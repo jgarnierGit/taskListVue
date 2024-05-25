@@ -20,7 +20,7 @@ services:
 
   # monitoring
   grafana:
-    image: grafana/grafana 
+    image: grafana/grafana:10.1.10
     container_name: grafana
     depends_on:
       - prometheus
@@ -40,9 +40,11 @@ services:
       - monitoring
     profiles:
       - monitor
+    labels:
+      org.label-schema.group: "monitoring"
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.52.0
     container_name: prometheus
     restart: unless-stopped
     volumes:
@@ -60,9 +62,11 @@ services:
       - monitoring
     profiles:
       - monitor
+    labels:
+      org.label-schema.group: "monitoring"
 
   nodeexporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.8.1
     container_name: nodeexporter
     restart: unless-stopped
     command:
@@ -80,9 +84,11 @@ services:
       - monitoring
     profiles:
       - monitor
+    labels:
+      org.label-schema.group: "monitoring"
 
   cadvisor:
-    image: google/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: cadvisor
     privileged: true
     restart: always
@@ -97,6 +103,8 @@ services:
       - monitoring
     profiles:
       - monitor
+    labels:
+      org.label-schema.group: "monitoring"
       
 networks:
   monitoring:
