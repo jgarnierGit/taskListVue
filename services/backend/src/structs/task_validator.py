@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ValidationError
-from typing import List, Optional, Union
+from typing import List, Optional
 
 class Task(BaseModel):
     id: str

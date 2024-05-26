@@ -1,12 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.endpoints.jobs_service import router as job_router
-from src.endpoints.tasktree_service import router as task_tree_service
+from src.routers.jobs import router as job
+from src.routers.tasktree import router as task_tree
 
 app = FastAPI()
-app.include_router(job_router, prefix="")
-app.include_router(task_tree_service, prefix="")
-
+app.include_router(job, prefix="")
+app.include_router(task_tree, prefix="")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8000"],
@@ -14,7 +13,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-
-    

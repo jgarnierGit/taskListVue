@@ -1,19 +1,20 @@
 from fastapi import APIRouter, HTTPException
-from src.models.job_scheduler import Job
+from src.structs.job_scheduler import Job
+from src.config.celery import get_task_info
 import ijson
 import os
 
 router = APIRouter()
 
+# TODO cancel, get job, wait until done
+
 # FIXME not poping done Job, use a real broker + task queue
 jobs: dict[str, Job] = {}
 
 @router.get("/job/{job_id}", summary="Get job for job_id")
-async def get_job(job_id: str) -> Job:
-    global jobs
-    if job_id not in jobs:
-        raise HTTPException(status_code=404, detail=f"Job {job_id} not found")
-    return jobs[job_id]
+async def get_job(job_id: str):
+    print(f"retreiving job{job_id}")
+    return get_task_info(job_id)
 
 def queue_upload_file(job_id, input_queue, callback):
     """

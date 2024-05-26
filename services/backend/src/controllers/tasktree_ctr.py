@@ -6,7 +6,7 @@ import time
 from typing import  List, BinaryIO
 from uuid import uuid4
 
-from src.models.task_validator import LazyLoadedNode, Task, TaskBuilder, TaskList
+from src.structs.task_validator import LazyLoadedNode, Task, TaskBuilder, TaskList
 from src.constants import DATA_DIR
 
 task_tree = None

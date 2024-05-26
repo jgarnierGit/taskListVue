@@ -3,7 +3,7 @@ import unittest
 from ..main import app
 import json
 import time
-from src.models.task_validator import LazyLoadedNode
+from src.structs.task_validator import LazyLoadedNode
 
 client = TestClient(app)
 
@@ -15,7 +15,7 @@ def wait_job_result(response):
     time.sleep(1)
     return client.get(f"/job/{str(job_id)}")
 
-class TestTaskTreeService(unittest.TestCase):
+class TestTaskTree(unittest.TestCase):
     def test_upload_correct(self):
         # Create a sample JSON file
         json_data = {

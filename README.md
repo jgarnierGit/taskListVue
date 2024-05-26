@@ -4,11 +4,21 @@
 
 ## Overview
 
-Frontend : [Vue3](https://vuejs.org/), [Nuxt3](https://nuxt.com/), [Pinia](https://pinia.vuejs.org/), [Vuetify3](https://vuetifyjs.com/), [Vitest](https://vitejs.dev) and [Playwright](https://playwright.dev/)
+Frontend : 
+  - App : [Vue3](https://vuejs.org/), [Nuxt3](https://nuxt.com/), [Pinia](https://pinia.vuejs.org/)
+  - Component Framework : [Vuetify3](https://vuetifyjs.com/)
+  - Testing : [Vitest](https://vitejs.dev) and [Playwright](https://playwright.dev/)
 
-Backend : [python3](https://www.python.org/), [FastAPI](https://fastapi.tiangolo.com/), [pytest](https://docs.pytest.org)
+Backend : 
+  - Server : [python3](https://www.python.org/), [FastAPI](https://fastapi.tiangolo.com/), [pytest](https://docs.pytest.org)
+  - Distributed Task Queue : [Celery](https://docs.celeryq.dev)
+  - Broker : [RabbitMQ](https://www.rabbitmq.com/)
 
-Monitoring : [Grafana](https://grafana.com/), [Prometheus](https://prometheus.io/) with [cAdvisor](https://github.com/google/cadvisor) and [node-exporter](https://github.com/prometheus/node_exporter)
+Monitoring : 
+  - Dashboards : [Grafana](https://grafana.com/)
+  - Metrics collector DB : [Prometheus](https://prometheus.io/) 
+  - OS / containers exporters : [cAdvisor](https://github.com/google/cadvisor) and [node-exporter](https://github.com/prometheus/node_exporter)
+  - Celery monitoring : [flower](https://flower.readthedocs.io)
 
 ## Functionalities
 
@@ -55,7 +65,7 @@ or
 docker compose --profile monitor up -d #starts also monitoring
 ```
 
-- Monitoring Grafana (`http://localhost:3000`)
+- Monitoring via Grafana (`http://localhost:3000`)
 
     login : admin/admin
 
@@ -64,6 +74,8 @@ docker compose --profile monitor up -d #starts also monitoring
 ```bash
 docker compose up grafana  #starts only monitoring
 ```
+
+- Monitoring Celery tasks via Flower (`http://localhost:5555`)
 
 - API docs (`http://localhost:5000/docs`)
 

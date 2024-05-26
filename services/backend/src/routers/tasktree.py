@@ -7,11 +7,11 @@ from typing import List
 from uuid import uuid4
 from pydantic import ValidationError
 
-from src.models.task_validator import LazyLoadedNode, TaskList
-from src.endpoints.jobs_service import queue_upload_file
+from src.structs.task_validator import LazyLoadedNode, TaskList
+from src.routers.jobs import queue_upload_file
 from src.constants import DATA_DIR
 from src.controllers.tasktree_ctr import load_task_childs,load_first_levels, process_json_file, write_file
-
+from src.tasks.tasktree import divide
 router = APIRouter()
 
 input_queue = queue.Queue()
@@ -59,6 +59,11 @@ def load_childs(task_id:str):
 async def generate_tree(background_tasks: BackgroundTasks):
     background_tasks.add_task(write_file)
     return JSONResponse(status_code=status.HTTP_202_ACCEPTED,content="Generation in process")
+
+@router.get("/testCelery")
+async def test_celery():
+    result = divide.delay(10, 10)
+    return { "job_id": result.task_id}
 
         
 

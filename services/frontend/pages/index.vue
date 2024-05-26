@@ -19,6 +19,7 @@
     <v-divider :thickness="5" />
     <TaskListTree v-model="root" />
   </v-card>
+  <TestCelery></TestCelery>
 </template>
 
 <script setup lang="ts">

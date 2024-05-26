@@ -1,5 +1,7 @@
 version: '3.8'
 
+name: myapp
+
 services:
   # backend
   backend:
@@ -11,12 +13,23 @@ services:
       dockerfile: Dockerfile_dev
     ports:
       - 5000:5000
-      - 5678:5678
+      - 5678:5678 # debug
+      - 5555:5555 # flower UI management
     volumes:
       - ./services/backend:/app
       - ./data:/data
     environment:
       - PYTHON_DATA_DIR=/data
+
+  # broker
+  rabbitmq:
+    image: rabbitmq:3.12.14-management-alpine 
+    ports:
+      - "5672:5672"  # RabbitMQ default port
+      - "15672:15672"  # RabbitMQ management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"  # Default user
+      RABBITMQ_DEFAULT_PASS: "guest"  # Default password
 
   # monitoring
   grafana:
@@ -64,7 +77,7 @@ services:
       - monitor
     labels:
       org.label-schema.group: "monitoring"
-
+  # monitoring : system
   nodeexporter:
     image: prom/node-exporter:v1.8.1
     container_name: nodeexporter
@@ -86,7 +99,7 @@ services:
       - monitor
     labels:
       org.label-schema.group: "monitoring"
-
+  # monitoring : containers
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: cadvisor
@@ -105,7 +118,7 @@ services:
       - monitor
     labels:
       org.label-schema.group: "monitoring"
-      
+  
 networks:
   monitoring:
     driver: bridge
