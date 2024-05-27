@@ -1,9 +1,19 @@
 <template>
-    <v-file-input accept=".json" label="Import JSON" @change="importTasks">
-    </v-file-input>
-    <v-checkbox v-model="isDegraded">
-        <v-tooltip activator="parent" location="top">Import with degraded performances</v-tooltip>
-    </v-checkbox>
+
+    <v-progress-linear indeterminate v-if="store.isLoadingRunning"></v-progress-linear>
+    <v-card-text v-else>
+        <v-row dense>
+            <v-col cols="12">
+                <v-file-input accept=".json" label="Import JSON" @change="importTasks"></v-file-input>
+            </v-col>
+        </v-row>
+        <v-row dense>
+            <v-col cols="12">
+                <v-checkbox v-model="isDegraded" label="Import with degraded performances">
+                </v-checkbox>
+            </v-col>
+        </v-row>
+    </v-card-text>
 </template>
 
 <script setup lang="ts">
@@ -19,8 +29,7 @@ import { type LazyLoadedNode, type TaskList } from '~/commons/Interfaces';
 import { API_BASE_URL } from '~/commons/const';
 const root = defineModel<TaskList>({ required: true });
 const isDegraded = ref(false);
-// used for the unit tests, make sure to wait the content to be loaded.
-const emit = defineEmits(['importedTasksList']);
+const emit = defineEmits(['afterImport']);
 const store = useLazyLoadingStore();
 
 async function importTasks(event: Event) {
@@ -84,7 +93,7 @@ async function readServerSide(file: File) {
         const response = await axios.post(`${API_BASE_URL}/upload`, formData)
         try {
             // @ts-ignore , already an ugly hack waiting for a broker + task queue
-            const jobResponse = await axios.get(`${API_BASE_URL}/job/${response.data.job_id}`, { retry: 50, retryDelay: 500 });
+            const jobResponse = await axios.get(`${API_BASE_URL}/jobLegacy/${response.data.job_id}`, { retry: 50, retryDelay: 500 });
             if (!jobResponse.data || !jobResponse.data.result || jobResponse.data.status === "error") {
                 alert(`Error while parsing file structure server side:  please refer to logs for further detail`);
                 console.error(jobResponse?.data?.result);
@@ -165,7 +174,7 @@ function parseTasks(json: string) {
 
 function replaceRoot(newTree: TaskList) {
     root.value.tasks = newTree.tasks;
-    emit('importedTasksList');
+    emit('afterImport');
 }
 
 </script>

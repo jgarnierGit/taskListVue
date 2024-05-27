@@ -8,6 +8,8 @@ services:
     stdin_open: true
     tty: true
     container_name: python-backend-dev
+    depends_on:
+      - rabbitmq
     build: 
       context: ./services/backend
       dockerfile: Dockerfile_dev

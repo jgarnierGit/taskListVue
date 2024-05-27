@@ -16,6 +16,13 @@ async def get_job(job_id: str):
     print(f"retreiving job{job_id}")
     return get_task_info(job_id)
 
+@router.get("/jobLegacy/{job_id}", summary="Get job for job_id")
+async def get_job_legacy(job_id: str) -> Job:
+    global jobs
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail=f"Job {job_id} not found")
+    return jobs[job_id]
+
 def queue_upload_file(job_id, input_queue, callback):
     """
         Add upload file callback to the job queue.

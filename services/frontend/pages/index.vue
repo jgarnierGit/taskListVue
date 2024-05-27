@@ -1,24 +1,19 @@
 <template>
-  <v-card class="mx-auto" width="600">
-    <v-toolbar dark>
-      <v-toolbar-title>
-        Tasks manager
-      </v-toolbar-title>
-    </v-toolbar>
-    <v-divider :thickness="5" />
-    <v-progress-linear indeterminate v-if="store.isLoadingRunning"></v-progress-linear>
-    <v-toolbar>
-      <v-toolbar-items class="import-export">
-        <ImportTasks v-model="root" />
-      </v-toolbar-items>
-      <v-divider vertical></v-divider>
-      <v-toolbar-items class="import-export">
-        <ExportTasks :task="root" />
-      </v-toolbar-items>
-    </v-toolbar>
-    <v-divider :thickness="5" />
-    <TaskListTree v-model="root" />
-  </v-card>
+  <v-layout class="rounded rounded-md">
+    <v-app-bar title="Tasks manager" class="text-center"></v-app-bar>
+    <AppMenu v-model="root" />
+    <v-main>
+      <v-container class="py-10 px-10" min-height="40vh" fluid>
+        <v-row>
+          <v-col cols="12">
+            <v-card>
+              <TaskListTree v-model="root" />
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-layout>
   <TestCelery></TestCelery>
 </template>
 
@@ -29,15 +24,7 @@
  * 
  */
 import type { TaskList } from '~/commons/Interfaces';
-const store = useLazyLoadingStore();
 
 const root: TaskList = reactive({ tasks: [] });
 
 </script>
-
-<style>
-.v-toolbar-items.import-export {
-  flex: 1 1 content;
-  column-gap: 20px;
-}
-</style>

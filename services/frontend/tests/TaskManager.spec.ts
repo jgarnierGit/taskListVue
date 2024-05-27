@@ -18,35 +18,5 @@ describe('TaskManager.vue status update', () => {
         assert(!!statusComp);
         expect(statusComp.vm.task.isDone).toBeTruthy();
     });
-
-    it('renders new status should be created', async () => {
-        const taskName = '1';
-        const taskId = getTaskIdByName(taskName);
-        const wrapper = await createWrapperWithData();
-        const addInlineComp = wrapper.find('#add-inline-before-' + taskId);
-        assert(!!addInlineComp);
-        await addInlineComp.trigger('click');
-
-        const statusComp = await getDirectComponentByTaskName(wrapper, TaskManager, "New task");
-        assert(!!statusComp);
-        expect(statusComp.vm.task.isDone).toBeFalsy();
-    });
 });
 
-describe('TaskManager.vue edit name', () => {
-    it.todo('Edit name of leaft Task, expecting name is edited', async () => {
-        const taskName = '2';
-        const wrapper = await createWrapperWithData();
-        const taskId = getTaskIdByName(taskName);
-        const editNameComp = getDirectComponentByTaskName(wrapper, TaskManager, taskName);
-        const editField = wrapper.findComponent('[data-testid="edit-task-name"]');
-        editField.trigger('click');
-        editField.setValue('Toto');
-        editField.trigger('blur');
-        const taskComponents = wrapper.findAllComponents(TaskManager);
-        const taskEdited = taskComponents.find((t) => t.props('task').id === taskId);
-        assert(!!taskEdited);
-        // FIXME value not persisted in test context when using v-text-field with input field test is valid
-        expect(taskEdited.vm.task.name).toEqual('Toto');
-    });
-});

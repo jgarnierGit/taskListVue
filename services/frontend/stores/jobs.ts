@@ -2,10 +2,10 @@ import axios from 'axios';
 import { defineStore } from 'pinia'
 import { API_BASE_URL } from '~/commons/const';
 
+// store 1 job at a time
 export const useJobsStore = defineStore('jobs', () => {
 
     const jobResult = ref();
-    const jobId = ref();
 
     const jobResultData = computed(() => jobResult.value);
 
@@ -47,5 +47,5 @@ export const useJobsStore = defineStore('jobs', () => {
         jobResult.value = data.task_result;
     }
 
-    return { jobResult, jobId, jobResultData, waitForJobResult, getJobResult }
+    return { jobResult, jobResultData, waitForJobResult, getJobResult }
 });

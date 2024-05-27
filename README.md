@@ -86,6 +86,12 @@ docker compose up grafana  #starts only monitoring
 Launch and attach `debugpy` on `0.0.0.0:5678`
 Include `--wait-for-client` to debugpy if you need to debug server from the launch
 
+## logs
+
+```bash
+docker-compose logs -f <service-name>
+```
+
 ## tests
 
 - backend

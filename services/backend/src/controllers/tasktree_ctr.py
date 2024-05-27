@@ -100,11 +100,15 @@ def write_file():
     with open(f'{DATA_DIR}/tasklist{time.strftime("%Y%m%d-%H%M%S")}.json', "w") as f:
         f.write(json_str)
 
-def is_instance(task: Task, task_id: str):
+def find_instance(task: Task, task_id: str):
+    task_result = None
     for t in task["tasks"]:
         if t["id"] == task_id:
             return t
-        return is_instance(t, task_id)
+        task_result = find_instance(t, task_id)
+        if task_result:
+            return task_result
+    return task_result
 
 def load_task_childs(task_id: str) -> LazyLoadedNode:
     global task_tree
@@ -114,9 +118,9 @@ def load_task_childs(task_id: str) -> LazyLoadedNode:
         if t["id"] == task_id:
             task = t
             break
-        task = is_instance(t, task_id)
         if task:
             break
+        task = find_instance(t, task_id)
     if not task:
         return None
     limited_task = load_tasks_chunk(dict(task),lazy_loaded_ids,1)

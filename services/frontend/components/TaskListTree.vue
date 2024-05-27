@@ -1,6 +1,6 @@
 <template>
     <AddTask @add-task="addTaskRoot" id="add-inline-root" v-if="!root.tasks.length" class="text-center">
-        <v-icon :icon="mdiCursorDefaultClick" size="large"></v-icon> START CREATING NOW
+        <v-icon :icon="mdiCursorDefaultClick"></v-icon>Start creation
     </AddTask>
     <v-list dense dark v-for="(subTask, index) in root.tasks">
         <TasksSubList v-model:task="root.tasks[index]" v-model:parent="root" :index="index" />

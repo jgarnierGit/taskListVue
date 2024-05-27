@@ -1,40 +1,31 @@
 <template>
     <AddTask v-if="!index" :taskId="task.id" :id="`add-inline-before-${task.id}`" :label="`before ${task.name}`"
-        @add-task="addTaskBefore" />
-    <v-list-item v-if="!task.tasks.length && !isLazyLoaded">
-        <template v-slot:prepend>
-            <TaskMenu :task="task" :index="task.id" @up-order="orderingUp" @down-order="orderingDown"
-                @delete="deleteTask" @status-update="updateStatus" />
-        </template>
-        <template v-slot:append>
-            <AddTask :taskId="task.id" :label="`to ${task.name}`" :disabled="true">
-                <v-btn density="compact" :id="`add-child-${task.id}`" @click="addTaskChild(task.id)" icon="$plus">
-                </v-btn>
-            </AddTask>
-        </template>
+        @add-task="addTaskBefore" :class="[depth === 0 ? '' : 'border-s']" />
+    <v-list-group :subgroup="true" :class="[depth === 0 ? 'border-b' : 'border-b border-s']"
+        :prepend-icon="addChildIcon">
 
-        <TaskManager :task="task" />
-    </v-list-item>
-
-    <v-list-group v-else>
         <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props">
-                <template v-slot:prepend>
+            <v-list-item v-bind="props" max-width="500px">
+                <template v-slot:append>
                     <TaskMenu :task="task" :index="task.id" @up-order="orderingUp" @down-order="orderingDown"
                         @delete="deleteTask" @status-update="updateStatus" />
                 </template>
-                <template v-slot:append v-if="isLazyLoaded">
-                    <v-btn density="compact" :id="`add-child-${task.id}`" @click="loadChild(task.id)" variant="plain"
-                        :icon="lazyLoadIcon">
+                <template v-slot:prepend v-if="isLazyLoaded || hasNoChild">
+                    <v-btn v-if="isLazyLoaded" density="compact" :id="`add-child-${task.id}`"
+                        @click="loadChild(task.id)" variant="plain" :icon="lazyLoadIcon">
                     </v-btn>
+
+                    <AddTask v-if="hasNoChild" :taskId="task.id" :label="`to ${task.name}`" :disabled="true"
+                        @click="addTaskChild(task.id)">
+                    </AddTask>
                 </template>
                 <TaskManager :task="task" />
-
             </v-list-item>
         </template>
         <v-skeleton-loader type="list-item" v-if="isTaskLoading"></v-skeleton-loader>
-        <v-list-item v-else v-for="(subt, subi) in task.tasks">
-            <TasksSubList :task="subt" v-model:parent="task" :index="subi" @update-parent-status="updateParentStatus" />
+        <v-list-item v-else v-for="(subt, subi) in task.tasks" class="ml-0 pl-0">
+            <TasksSubList :task="subt" v-model:parent="task" :index="subi" :depth="depth + 1"
+                @update-parent-status="updateParentStatus" />
         </v-list-item>
     </v-list-group>
     <AddTask :taskId="task.id" :id="`add-inline-after-${task.id}`" :label="`after ${task.name}`"
@@ -52,7 +43,9 @@ import axios from 'axios';
 import type { LazyLoadedNode, Task, TaskList } from '~/commons/Interfaces';
 import { API_BASE_URL } from '~/commons/const';
 
-defineProps<{ index: number }>();
+withDefaults(defineProps<{ index: number, depth?: number }>(), {
+    depth: 0
+});
 const parent = defineModel('parent', { type: {} as PropType<TaskList>, required: true });
 const task = defineModel('task', { type: {} as PropType<Task>, required: true })
 const emit = defineEmits(['updateParentStatus']);
@@ -61,6 +54,8 @@ const store = useLazyLoadingStore();
 const isLazyLoaded = computed(() => store.isIdLazyLoaded(task.value.id));
 const isTaskLoading = computed(() => store.isTaskLoading(task.value.id));
 const lazyLoadIcon = computed(() => isTaskLoading.value ? "$chevronUp" : "$chevronDown")
+const hasNoChild = computed(() => !task.value.tasks.length && !isLazyLoaded.value)
+const addChildIcon = computed(() => hasNoChild.value ? "$plus" : "$chevronDown")
 
 function addTaskAfter(taskId: string) {
     const index = findTaskIndex(parent.value, taskId);
@@ -172,9 +167,9 @@ async function loadChild(taskId: string) {
 <style>
 /** reduce massive default indentation */
 .v-list-group {
-    --list-indent-size: 4px;
+    --list-indent-size: 1px;
     --parent-padding: var(--indent-padding);
-    --prepend-width: 4px;
+    --prepend-width: 1px;
 }
 
 .v-list-item {
