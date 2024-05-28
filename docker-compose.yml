@@ -16,6 +16,7 @@ services:
     ports:
       - 5000:5000
       - 5678:5678 # debug
+      - 6900:6900 # debug celery task
       - 5555:5555 # flower UI management
     volumes:
       - ./services/backend:/app

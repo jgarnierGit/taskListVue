@@ -14,7 +14,6 @@
       </v-container>
     </v-main>
   </v-layout>
-  <TestCelery></TestCelery>
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,4 @@
 <template>
-
     <v-progress-linear indeterminate v-if="store.isLoadingRunning"></v-progress-linear>
     <v-card-text v-else>
         <v-row dense>
@@ -7,10 +6,18 @@
                 <v-file-input accept=".json" label="Import JSON" @change="importTasks"></v-file-input>
             </v-col>
         </v-row>
+    </v-card-text>
+    <v-card-text v-if="jobOutOfRetry">
+        <v-alert icon="$mdiAlert" variant="outlined">
+            <template v-slot:text>Job is taking longer than expected, you can refresh manually to wait for the
+                result, or check if all server services are running.
+            </template>
+        </v-alert>
         <v-row dense>
-            <v-col cols="12">
-                <v-checkbox v-model="isDegraded" label="Import with degraded performances">
-                </v-checkbox>
+            <v-col cols="12" class="text-center">
+                <v-btn prepend-icon="$mdiRefresh" @click="waitResult">
+                    Refresh
+                </v-btn>
             </v-col>
         </v-row>
     </v-card-text>
@@ -26,11 +33,51 @@
 import axios from 'axios';
 import { z } from 'zod';
 import { type LazyLoadedNode, type TaskList } from '~/commons/Interfaces';
-import { API_BASE_URL } from '~/commons/const';
+import { API_BASE_URL, JOB_RETRY_MAX, JOB_RETRY_TIMEOUT } from '~/commons/const';
 const root = defineModel<TaskList>({ required: true });
-const isDegraded = ref(false);
 const emit = defineEmits(['afterImport']);
 const store = useLazyLoadingStore();
+const jobStore = useJobsStore();
+const jobId = ref();
+const { jobResult } = storeToRefs(jobStore);
+const jobOutOfRetry = ref(false);
+
+watch(jobId, (newValue) => {
+    if (newValue) {
+        try {
+            jobStore.waitForJobResult(newValue, JOB_RETRY_MAX, JOB_RETRY_TIMEOUT);
+        } catch (error) {
+            console.error(error);
+            store.endIdLoading();
+            alert(`Error while importing JSON file:  please refer to logs for further detail`);
+        }
+    }
+})
+
+watch(jobResult, (newValue) => {
+    if (newValue) {
+        if (newValue.status === 'SUCCESS' && newValue.data) {
+            store.resetLazyLoadedIdsWith(newValue.data.lazyLoadedIds);
+            replaceRoot(newValue.data.tree);
+        }
+        if (newValue.status === 'RETRY_ENDS') {
+            jobOutOfRetry.value = true;
+        }
+        if (newValue.status === 'ERROR') {
+            store.endIdLoading();
+            alert(`Error while importing JSON file:  please refer to logs for further detail`);
+        }
+    }
+})
+
+async function waitResult() {
+    jobStore.getJobResult(jobId.value);
+}
+
+
+onUnmounted(() => {
+    store.endIdLoading();
+})
 
 async function importTasks(event: Event) {
     const target = event.target as HTMLInputElement;
@@ -45,93 +92,29 @@ async function importTasks(event: Event) {
 
     const maxSize = 1 * 1024 * 1024; // 1 MB
     store.setIdLoading("ROOT");
-    if (file.size > maxSize) {
-        if (isDegraded.value) {
-            importResult = await readServerSideDegraded(file);
-        } else {
-            importResult = await readServerSide(file);
+    try {
+        if (file.size > maxSize) {
+            await readServerSide(file);
         }
-    }
-    else {
-        importResult = await readClientSide(file);
-    }
-    if (importResult) {
-        replaceRoot(importResult);
+        else {
+            importResult = await readClientSide(file);
+        }
+        if (importResult) {
+            replaceRoot(importResult);
+
+        }
+    } catch (error) {
+        console.error(error);
         store.endIdLoading();
+        alert(`Error while importing JSON file:  please refer to logs for further detail`);
     }
 }
 
 async function readServerSide(file: File) {
-    return await processServerSide(file, async (formData) => {
-        // handcrafted watcher for job status
-        const interceptor = axios.interceptors.response.use(function (r) {
-            /** HTTP 2XX */
-            const { data, config } = r;
-            if (data && data.status === "pending") {
-                // @ts-ignore
-                if (!config.retry) {
-                    return Promise.reject(r);
-                }
-                // @ts-ignore
-                config.retry -= 1;
-                const retryPromise = new Promise((resolve) => {
-                    setTimeout(() => {
-                        console.log("retry the request", config.url);
-                        resolve(r);
-                    },
-                        // @ts-ignore
-                        config.retryDelay || 1000);
-                });
-                return retryPromise.then(() => axios(config));
-            }
-            return r;
-        }, function (err) {
-            /** HTTP > 2XX */
-            return err;
-        });
-
-        const response = await axios.post(`${API_BASE_URL}/upload`, formData)
-        try {
-            // @ts-ignore , already an ugly hack waiting for a broker + task queue
-            const jobResponse = await axios.get(`${API_BASE_URL}/jobLegacy/${response.data.job_id}`, { retry: 50, retryDelay: 500 });
-            if (!jobResponse.data || !jobResponse.data.result || jobResponse.data.status === "error") {
-                alert(`Error while parsing file structure server side:  please refer to logs for further detail`);
-                console.error(jobResponse?.data?.result);
-                return
-            }
-            return jobResponse.data.result as LazyLoadedNode;
-        } finally {
-            axios.interceptors.response.eject(interceptor);
-        }
-
-    });
-}
-
-async function readServerSideDegraded(file: File) {
-    return await processServerSide(file, async (formData) => {
-        const response = await axios.post(`${API_BASE_URL}/uploadDegraded`, formData);
-        if (!response.data) {
-            alert(`Error while parsing file structure server side:  please refer to logs for further detail`);
-            console.error(response);
-            return
-        }
-        return response.data;
-    });
-}
-
-async function processServerSide(file: File, callback: (formData: FormData) => Promise<LazyLoadedNode | undefined>) {
-    const formData = new FormData()
-    formData.append('file', file)
-    try {
-        const rootNode = await callback(formData);
-        if (rootNode) {
-            store.resetLazyLoadedIdsWith(rootNode.lazyLoadedIds);
-            return rootNode.tree;
-        }
-    } catch (e: any) {
-        console.error(e);
-        alert(`Error while parsing file structure server side:  please refer to logs for further detail`);
-    }
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axios.post(`${API_BASE_URL}/upload`, formData);
+    jobId.value = response.data.job_id;
 }
 
 async function readClientSide(file: File): Promise<TaskList | undefined> {
@@ -139,7 +122,13 @@ async function readClientSide(file: File): Promise<TaskList | undefined> {
     return new Promise((resolve, reject) => {
         reader.onload = (event) => {
             const result = event.target?.result as string;
-            resolve(parseTasks(result));
+            try {
+                const res = parseTasks(result);
+                resolve(res);
+            } catch (e) {
+                reject(e);
+                store.endIdLoading();
+            }
         };
         reader.onerror = (event) => {
             alert(`Error reading file: ${event.target?.error}`);
@@ -148,7 +137,6 @@ async function readClientSide(file: File): Promise<TaskList | undefined> {
         reader.readAsText(file);
     });
 }
-
 
 function parseTasks(json: string) {
     const task = z.object({
@@ -162,13 +150,8 @@ function parseTasks(json: string) {
         tasks: z.lazy(() => task.array()),
     });
     const RootTaskSchema = z.object({ tasks: z.array(taskSchema) });
-    try {
-        const parseData = JSON.parse(json);
-        return RootTaskSchema.parse(parseData) as TaskList;
-    } catch (e) {
-        console.error(e);
-        alert("Error while parsing file structure, please refer to logs for further detail");
-    }
+    const parseData = JSON.parse(json);
+    return RootTaskSchema.parse(parseData) as TaskList;
 
 }
 

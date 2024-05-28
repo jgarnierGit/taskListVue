@@ -21,6 +21,10 @@ export default defineNuxtConfig({
       })
     }],
   vite: {
+    define: {
+      VUE_APP_JOB_RETRY_MAX: 3,
+      VUE_APP_JOB_RETRY_TIMEOUT: 50
+    },
     vue: {
       template: {
         transformAssetUrls,

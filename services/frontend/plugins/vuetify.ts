@@ -4,7 +4,7 @@ import * as directives from 'vuetify/directives';
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles';
 import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
-import { mdiAutorenew, mdiCheck, mdiChevronDown, mdiChevronUp, mdiFormSelect, mdiDotsVertical, mdiDownload, mdiFileExport, mdiFileImport, mdiPencil, mdiPlus, mdiTransferDown, mdiTransferUp, mdiTrashCanOutline, mdiFamilyTree, mdiArrowExpandVertical, mdiArrowExpandHorizontal, mdiFileTreeOutline, mdiAlert, mdiFormTextbox } from '@mdi/js';
+import { mdiAutorenew, mdiCheck, mdiChevronDown, mdiChevronUp, mdiFormSelect, mdiDotsVertical, mdiDownload, mdiFileExport, mdiFileImport, mdiPencil, mdiPlus, mdiTransferDown, mdiTransferUp, mdiTrashCanOutline, mdiFamilyTree, mdiArrowExpandVertical, mdiArrowExpandHorizontal, mdiFileTreeOutline, mdiAlert, mdiFormTextbox, mdiRefresh } from '@mdi/js';
 
 export default defineNuxtPlugin((nuxtApp) => {
     const vuetify = createVuetify({
@@ -36,7 +36,8 @@ export default defineNuxtPlugin((nuxtApp) => {
                 mdiArrowExpandHorizontal: mdiArrowExpandHorizontal,
                 mdiFileTreeOutline: mdiFileTreeOutline,
                 mdiAlert: mdiAlert,
-                mdiFormTextbox: mdiFormTextbox
+                mdiFormTextbox: mdiFormTextbox,
+                mdiRefresh: mdiRefresh
             },
             sets: {
                 mdi,

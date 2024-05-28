@@ -48,7 +48,8 @@
                             </template>
                             <GenerateTree />
                             <template v-slot:actions>
-                                <v-btn class="ml-auto" text="Close" @click="isActive.value = false"></v-btn>
+                                <v-btn class="ml-auto" text="Close" @click="cancelIfRunning(isActive)">
+                                </v-btn>
                             </template>
                         </v-card>
                     </template>
@@ -64,6 +65,7 @@ import type { TaskList } from '~/commons/Interfaces';
 
 const root = defineModel<TaskList>({ required: true });
 const isEmptyList = computed(() => root.value.tasks.length === 0);
+const jobStore = useJobsStore();
 
 const importDialog = ref(false);
 const createDialog = ref(false);
@@ -77,6 +79,11 @@ function exportTree() {
     link.href = url;
     link.download = 'tasks.json';
     link.click();
+}
+
+function cancelIfRunning(isActive: Ref) {
+    jobStore.cancelJob();
+    isActive.value = false;
 }
 
 </script>

@@ -4,7 +4,7 @@ from celery.result import AsyncResult
 import os
 
 CELERY_BROKER_URL: str = os.environ.get("CELERY_BROKER_URL", "amqp://guest:guest@rabbitmq:5672//")# RabbitMq broker config
-CELERY_RESULT_BACKEND: str = os.environ.get("CELERY_RESULT_BACKEND", "rpc://") # TODO test redis to make tasks persistent
+CELERY_RESULT_BACKEND: str = os.environ.get("CELERY_RESULT_BACKEND", "rpc://") # TODO redis to make tasks persistent
 
 celeryapp =  Celery('tasktree',
                 broker="amqp://guest:guest@rabbitmq:5672//",
@@ -17,7 +17,7 @@ def get_task_info(task_id):
     """
     task_result = celeryapp.AsyncResult(task_id)
     return {
-         "task_id": task_id,
+        "task_id": task_id,
         "task_status": task_result.status, # PENDING means also "UNKNOWN"
         "task_result": task_result.get() if  task_result.ready() else None
     }

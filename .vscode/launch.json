@@ -17,5 +17,21 @@
             ],
             "justMyCode": true
         },
+        {
+            "name": "Python: Remote Debug Celery (Docker)",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "0.0.0.0",
+                "port": 6900,
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/services/backend",
+                    "remoteRoot": "/app"
+                }
+            ],
+            "justMyCode": true
+        },
     ]
 }

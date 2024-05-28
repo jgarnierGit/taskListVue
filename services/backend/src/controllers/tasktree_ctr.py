@@ -5,14 +5,14 @@ import string
 import time
 from typing import  List, BinaryIO
 from uuid import uuid4
+from cachetools import TTLCache
+cache = TTLCache(maxsize=100, ttl=3600) # TODO redis is a better solution
 
 from src.structs.task_validator import LazyLoadedNode, Task, TaskBuilder, TaskList
 from src.constants import DATA_DIR
 
-task_tree = None
-
 def process_json_file(file_content: BinaryIO) -> LazyLoadedNode:
-    global task_tree
+    global cache
     task_tree = TaskList()
     root_tasks = []
     tasks_stack: List[TaskBuilder] = []
@@ -42,6 +42,8 @@ def process_json_file(file_content: BinaryIO) -> LazyLoadedNode:
                 root_tasks.append(task)
             tasks_stack.pop()
     task_tree.tasks = root_tasks
+    # for now only store the last parsed tree.
+    cache["tree"] = task_tree
     lazy_loaded_ids :List[str] = []
     limited_tree = load_first_levels(task_tree, lazy_loaded_ids)
     lazyNode = LazyLoadedNode(tree=limited_tree, lazyLoadedIds=lazy_loaded_ids)
@@ -111,7 +113,8 @@ def find_instance(task: Task, task_id: str):
     return task_result
 
 def load_task_childs(task_id: str) -> LazyLoadedNode:
-    global task_tree
+    global cache
+    task_tree = cache["tree"]
     task = None
     lazy_loaded_ids = []
     for t in task_tree.tasks:

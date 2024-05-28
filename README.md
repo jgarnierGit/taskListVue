@@ -11,6 +11,7 @@ Frontend :
 
 Backend : 
   - Server : [python3](https://www.python.org/), [FastAPI](https://fastapi.tiangolo.com/), [pytest](https://docs.pytest.org)
+  - Cache : [cachetools](https://pypi.org/project/cachetools/)
   - Distributed Task Queue : [Celery](https://docs.celeryq.dev)
   - Broker : [RabbitMQ](https://www.rabbitmq.com/)
 
@@ -24,14 +25,25 @@ Monitoring :
 
 Recursive task manager, with import / export JSON file and lazy loading management.
 
+ - Running advices :
+   - After [starting server services](./README#start-up), [logs the backend](./README#logs) to know when the application will be ready.
+ - Known limitations :
+   - Tasks Queue are not persistent, as I used `rpc` and `cachetools`. Cache is configured to handle 100 items for 1 hour.
+
 If you want to play with monitoring :
   1. Go to Grafana administration, and visualize `Docker Containers ` and `Docker Host` to monitor respectively Docker containers performances and host performances.
   2. You can can generate your own random task tree via the `/generate` endpoint. The file will be generated in `./data`
-  3. Try importing the generated JSON file with degraded perfs activated (checkbox activated).
+  3. Importing the generated JSON file, or any other heavy JSON file.
 
-**tips:**
+## Setup
 
-Maybe check your .wslconfig, especially for small Hardware configuration :
+Make sure to install the dependencies:
+
+[Docker](https://www.docker.com/), [npm](https://www.npmjs.com/)
+
+## Configuration
+
+ - Maybe check your .wslconfig, especially for small Hardware configuration :
 
 ```
 [wsl2]
@@ -39,11 +51,15 @@ memory=1GB
 processors=4
 ```
 
-## Setup
+ - I put some ridiculously low values to play with jobs workflows, you can edit them here [nuxt.config.ts](./services/frontend/nuxt.config.ts), values will be watched and reloaded
 
-Make sure to install the dependencies:
-
-[Docker](https://www.docker.com/), [npm](https://www.npmjs.com/)
+```ts
+vite: {
+    define: {
+      VUE_APP_JOB_RETRY_MAX: 3, // default : 10
+      VUE_APP_JOB_RETRY_TIMEOUT: 50  // ms default : 1000
+    },
+```
 
 ## Start up
 
@@ -83,8 +99,17 @@ docker compose up grafana  #starts only monitoring
 
 - backend
   
-Launch and attach `debugpy` on `0.0.0.0:5678`
-Include `--wait-for-client` to debugpy if you need to debug server from the launch
+  Launch and attach `debugpy` on `0.0.0.0:5678`
+  Include `--wait-for-client` to debugpy if you need to debug server from the launch
+
+  - Debug Celery Task logic
+  
+    put breakpoint in task content `rdb.set_trace()` then
+```bash
+telnet 127.0.0.1 6899
+```
+
+I provided VScode configuration to debug with breakpoints.
 
 ## logs
 

@@ -14,4 +14,6 @@ interface LazyLoadedNode {
     lazyLoadedIds: string[]
 }
 
-export type { LazyLoadedNode, Task, TaskList };
+type JobResultType = { status: string, data: LazyLoadedNode | undefined };
+
+export type { LazyLoadedNode, JobResultType, Task, TaskList };
