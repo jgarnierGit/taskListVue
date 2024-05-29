@@ -1,7 +1,7 @@
-cachetools
-celery
-fastapi
-flower
-ijson
-pydantic
-uvicorn
+cachetools==5.3.3
+celery==5.4.0
+fastapi==0.111.0
+flower==2.0.1
+ijson==3.2.3
+pydantic==2.7.2
+uvicorn==0.30.0

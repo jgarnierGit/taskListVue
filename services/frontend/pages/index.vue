@@ -14,6 +14,7 @@
       </v-container>
     </v-main>
   </v-layout>
+  <SnackBar></SnackBar>
 </template>
 
 <script setup lang="ts">

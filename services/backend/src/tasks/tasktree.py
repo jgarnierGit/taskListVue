@@ -1,7 +1,7 @@
 from src.config.celery import celeryapp
-from src.controllers.tasktree_ctr import process_json_file, load_task_childs
+from src.controllers.tasktree_ctr import process_json_file, load_task_childs, write_file
 from celery.signals import task_postrun
-
+import time
 import os
 
 @celeryapp.task
@@ -23,3 +23,8 @@ def task_postrun_notifier(sender=None, **kwargs):
 @celeryapp.task
 def run_load_task_childs(task_id: str):
     return load_task_childs(task_id)
+
+@celeryapp.task
+def run_generate_tree(max_depth: int, max_child_per_task: int, max_name_length: int, total_root_task: int):
+    time.sleep(20)
+    return write_file(max_depth, max_child_per_task, max_name_length, total_root_task)

@@ -32,27 +32,16 @@
 
 import axios from 'axios';
 import { z } from 'zod';
-import { type LazyLoadedNode, type TaskList } from '~/commons/Interfaces';
-import { API_BASE_URL, JOB_RETRY_MAX, JOB_RETRY_TIMEOUT } from '~/commons/const';
+import { type TaskList } from '~/commons/Interfaces';
+import { API_BASE_URL, JOB_RETRY_MAX, JOB_RETRY_TIMEOUT, SNACKBAR_TIMEOUT } from '~/commons/const';
 const root = defineModel<TaskList>({ required: true });
-const emit = defineEmits(['afterImport']);
+const emit = defineEmits(['afterImport', 'startUpload']);
 const store = useLazyLoadingStore();
+const snackbarStore = useSnackbarStore();
 const jobStore = useJobsStore();
 const jobId = ref();
 const { jobResult } = storeToRefs(jobStore);
 const jobOutOfRetry = ref(false);
-
-watch(jobId, (newValue) => {
-    if (newValue) {
-        try {
-            jobStore.waitForJobResult(newValue, JOB_RETRY_MAX, JOB_RETRY_TIMEOUT);
-        } catch (error) {
-            console.error(error);
-            store.endIdLoading();
-            alert(`Error while importing JSON file:  please refer to logs for further detail`);
-        }
-    }
-})
 
 watch(jobResult, (newValue) => {
     if (newValue) {
@@ -65,7 +54,7 @@ watch(jobResult, (newValue) => {
         }
         if (newValue.status === 'ERROR') {
             store.endIdLoading();
-            alert(`Error while importing JSON file:  please refer to logs for further detail`);
+            snackbarStore.setContent("Error while importing JSON file, check the logs", SNACKBAR_TIMEOUT, "error");
         }
     }
 })
@@ -94,6 +83,7 @@ async function importTasks(event: Event) {
     store.setIdLoading("ROOT");
     try {
         if (file.size > maxSize) {
+            emit('startUpload');
             await readServerSide(file);
         }
         else {
@@ -106,7 +96,7 @@ async function importTasks(event: Event) {
     } catch (error) {
         console.error(error);
         store.endIdLoading();
-        alert(`Error while importing JSON file:  please refer to logs for further detail`);
+        snackbarStore.setContent("Error while importing JSON file, check the logs", SNACKBAR_TIMEOUT, "error");
     }
 }
 
@@ -115,6 +105,13 @@ async function readServerSide(file: File) {
     formData.append('file', file);
     const response = await axios.post(`${API_BASE_URL}/upload`, formData);
     jobId.value = response.data.job_id;
+    try {
+        jobStore.waitForJobResult(jobId.value, JOB_RETRY_MAX, JOB_RETRY_TIMEOUT);
+    } catch (error) {
+        console.error(error);
+        store.endIdLoading();
+        snackbarStore.setContent("Error while importing JSON file, check the logs", SNACKBAR_TIMEOUT, "error");
+    }
 }
 
 async function readClientSide(file: File): Promise<TaskList | undefined> {
@@ -131,7 +128,8 @@ async function readClientSide(file: File): Promise<TaskList | undefined> {
             }
         };
         reader.onerror = (event) => {
-            alert(`Error reading file: ${event.target?.error}`);
+            snackbarStore.setContent("Error reading JSON file, check the logs", SNACKBAR_TIMEOUT, "error");
+            console.error(event);
             reject();
         };
         reader.readAsText(file);

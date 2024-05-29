@@ -72,7 +72,6 @@ npm run dev
 
 - backend (`http://localhost:5000`)
 
-    set up `PYTHON_DATA_DIR` for the JSON generator (default=`/tmp/data`)
 ```bash
 docker compose up
 ```

@@ -1,6 +1,5 @@
 
 from celery import Celery
-from celery.result import AsyncResult
 import os
 
 CELERY_BROKER_URL: str = os.environ.get("CELERY_BROKER_URL", "amqp://guest:guest@rabbitmq:5672//")# RabbitMq broker config
@@ -21,6 +20,14 @@ def get_task_info(task_id):
         "task_status": task_result.status, # PENDING means also "UNKNOWN"
         "task_result": task_result.get() if  task_result.ready() else None
     }
+
+def revoke(task_id):
+    """
+    revoke given task_id
+    """
+    task_result = celeryapp.AsyncResult(task_id)
+    task_result.revoke(terminate=True)
+    return {"task_id" : task_id, "task_status": "REVOKED"}
 
 if __name__ == '__main__':
     celeryapp.start()

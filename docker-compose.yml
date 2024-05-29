@@ -23,6 +23,7 @@ services:
       - ./data:/data
     environment:
       - PYTHON_DATA_DIR=/data
+      - FLOWER_UNAUTHENTICATED_API=True # allow task termination via flower interface unauthentified
 
   # broker
   rabbitmq:

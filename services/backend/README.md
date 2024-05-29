@@ -12,6 +12,10 @@ RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt # run deps
 RUN pip install --no-cache-dir --upgrade -r /app/requirements_dev.txt # run this line to install dev deps
 ```
 
+# Configuration
+
+set up `PYTHON_DATA_DIR` for the JSON generator (default=`/tmp/data`)
+
 # Run application
 
 ```bash

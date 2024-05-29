@@ -78,29 +78,32 @@ def load_first_levels(task_tree: TaskList, lazy_loaded_ids: List[str]):
     task_tree_limited["tasks"] = [load_tasks_chunk(dict(task), lazy_loaded_ids, 1) for task in task_tree.tasks]
     return task_tree_limited
 
-def write_file():
-    MAX_DEPTH = 5
-    MAX_CHILD_TASKS = 10
-    MAX_NAME_LENGTH = 10
-    NUM_TASKS = 5
+def write_file(max_depth:int, max_child_per_task:int, max_name_length:int, total_root_task:int) -> str:
+    """
+        generate a task tree, save it into a file and returns the file name
+        :return filename created
+    """
+    global cache
     def generateTask(tasks:List[Task] = []):
         return Task(
             id=str(uuid4()),
-            name="".join(random.choices(string.ascii_lowercase, k=MAX_NAME_LENGTH)), 
+            name="".join(random.choices(string.ascii_lowercase, k=max_name_length)), 
             isDone=random.choice([True, False]),
             tasks=tasks)
     
     def generate_tasklist(depth=0):
-        if depth == MAX_DEPTH:
+        if depth == max_depth:
             return generateTask()
         else:
-            return generateTask([generate_tasklist(depth+1) for _ in range(random.randint(1, MAX_CHILD_TASKS))])
+            return generateTask([generate_tasklist(depth+1) for _ in range(random.randint(1, max_child_per_task))])
     
-    tasks = [generate_tasklist() for _ in range(NUM_TASKS)]
+    tasks = [generate_tasklist() for _ in range(total_root_task)]
     tasklist = TaskList(tasks=tasks)
     json_str = json.dumps(tasklist.to_dict())
-    with open(f'{DATA_DIR}/tasklist{time.strftime("%Y%m%d-%H%M%S")}.json', "w") as f:
+    filename = f'{DATA_DIR}/tasklist{time.strftime("%Y%m%d-%H%M%S")}.json'
+    with open(filename, "w") as f:
         f.write(json_str)
+    return filename
 
 def find_instance(task: Task, task_id: str):
     task_result = None
