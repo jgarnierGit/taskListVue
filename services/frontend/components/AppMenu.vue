@@ -114,7 +114,7 @@ watch(jobResult, (newVal) => {
         if (newVal.status === "RETRY_ENDS") {
             createJobOutOfRetry.value = true;
         }
-        else {
+        else if (newVal.status !== "PENDING") {
             createJobOutOfRetry.value = false;
             createJobId.value = undefined;
         }
@@ -126,7 +126,7 @@ const createDialog = ref(false);
 
 async function waitResult() {
     if (createJobId.value) {
-        jobStore.getJobResult(createJobId.value);
+        await jobStore.getJobResult(createJobId.value);
     }
 }
 

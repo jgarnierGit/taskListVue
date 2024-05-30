@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { defineStore } from 'pinia'
 import type { JobResultType } from '~/commons/Interfaces';
-import { API_BASE_URL } from '~/commons/const';
+import { API_BASE_URL, SNACKBAR_TIMEOUT } from '~/commons/const';
+import { useSnackbarStore } from './snackbar'
 
 // store 1 job at a time
 export const useJobsStore = defineStore('jobs', () => {
+    const snackbar = useSnackbarStore();
     const jobResult = ref<JobResultType>();
     const jobRunningId = ref<string>();
 
@@ -34,14 +36,14 @@ export const useJobsStore = defineStore('jobs', () => {
             if ((status < 200 || status > 299) || !data) {
                 console.error(response);
                 jobResult.value = { status: 'ERROR', data: undefined };
-                jobRunningId.value = undefined;
                 if (jobCallback.value) {
                     jobCallback.value(jobResult.value);
                     jobCallback.value = undefined;
                 }
+                jobRunningId.value = undefined;
                 return;
             }
-            if (data.task_status === 'PENDING') {
+            else if (data.task_status === 'PENDING') {
                 if (!retry) {
                     console.warn(`no more retry for job ${id}`)
                     jobResult.value = { status: 'RETRY_ENDS', data: undefined };
@@ -55,19 +57,19 @@ export const useJobsStore = defineStore('jobs', () => {
             }
             else if (data.task_status === 'SUCCESS') {
                 jobResult.value = { status: 'SUCCESS', data: data.task_result };
-                jobRunningId.value = undefined;
                 if (jobCallback.value) {
                     jobCallback.value(jobResult.value);
                     jobCallback.value = undefined;
                 }
+                jobRunningId.value = undefined;
             }
         } catch (e) {
             console.error(e);
             jobResult.value = { status: 'ERROR', data: undefined };
-            jobRunningId.value = undefined;
             if (jobCallback.value) {
                 jobCallback.value(jobResult.value);
             }
+            jobRunningId.value = undefined;
         }
     }
 
@@ -82,17 +84,40 @@ export const useJobsStore = defineStore('jobs', () => {
 
 
     async function getJobResult(id: string) {
-        jobRunningId.value = id;
+        if (!jobRunningId.value) {
+            jobRunningId.value = id;
+        } else if (jobRunningId.value !== id) {
+            snackbar.setContent("Another job still pending", SNACKBAR_TIMEOUT, "warning");
+            return;
+        }
+
         try {
             const response = await axios.get(`${API_BASE_URL}/job/${id}`);
             const { status, data } = response;
-            if (status < 200 && status > 299) {
+            if (status < 200 || status > 299) {
                 console.error(jobResult);
                 jobResult.value = { status: 'ERROR', data: undefined };
-            } else {
-                jobResult.value = { status: 'SUCCESS', data: data.task_result };
+                if (jobCallback.value) {
+                    jobCallback.value(jobResult.value);
+                }
+                jobRunningId.value = undefined;
+            } else if (data.task_status === 'PENDING') {
+                jobResult.value = { status: data.task_status, data: data.task_result };
+                if (jobCallback.value) {
+                    jobCallback.value(jobResult.value);
+                }
             }
-        } finally {
+            else if (data.task_status === 'SUCCESS') {
+                jobResult.value = { status: data.task_status, data: data.task_result };
+                if (jobCallback.value) {
+                    jobCallback.value(jobResult.value);
+                    jobCallback.value = undefined;
+                    jobRunningId.value = undefined;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            jobResult.value = { status: 'ERROR', data: undefined };
             if (jobCallback.value) {
                 jobCallback.value(jobResult.value);
                 jobCallback.value = undefined;
@@ -101,5 +126,11 @@ export const useJobsStore = defineStore('jobs', () => {
         }
     }
 
-    return { jobResult, jobRunningId, isJobRunning, hasJobResultData, cancelJob, waitForJobResult, getJobResult }
+    function reset() {
+        jobRunningId.value = undefined;
+        jobCallback.value = undefined;
+        jobResult.value = undefined;
+    }
+
+    return { jobResult, jobRunningId, isJobRunning, hasJobResultData, cancelJob, waitForJobResult, getJobResult, reset }
 });

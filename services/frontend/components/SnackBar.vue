@@ -1,5 +1,5 @@
 <template>
-    <v-snackbar v-model="snackbar" :timeout="timeout" :color="type" elevation="24">
+    <v-snackbar v-model="isOpen" :timeout="timeout" :color="type" elevation="24">
         {{ content }}
 
         <template v-slot:actions>
@@ -13,20 +13,6 @@
 
 <script setup lang="ts">
 const store = useSnackbarStore();
-const { content, timeout, type } = storeToRefs(store);
-const snackbar = ref(false);
-
-watch(content, (newVal) => {
-    console.log(newVal)
-    const timeoutToSet = timeout.value;
-    if (snackbar.value) {
-        timeout.value = 0;
-        nextTick();
-    }
-    timeout.value = timeoutToSet;
-    snackbar.value = true;
-})
-
-
+const { isOpen, content, timeout, type } = storeToRefs(store);
 
 </script>

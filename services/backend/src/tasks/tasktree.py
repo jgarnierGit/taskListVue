@@ -26,5 +26,4 @@ def run_load_task_childs(task_id: str):
 
 @celeryapp.task
 def run_generate_tree(max_depth: int, max_child_per_task: int, max_name_length: int, total_root_task: int):
-    time.sleep(20)
     return write_file(max_depth, max_child_per_task, max_name_length, total_root_task)

@@ -24,7 +24,7 @@
         </template>
         <v-skeleton-loader type="list-item" v-if="isTaskLoading"></v-skeleton-loader>
         <v-list-item v-else v-for="(subt, subi) in task.tasks" class="ml-0 pl-0">
-            <TasksSubList :task="subt" v-model:parent="task" :index="subi" :depth="depth + 1"
+            <TasksSubList v-model:task="task.tasks[subi]" v-model:parent="task" :index="subi" :depth="depth + 1"
                 @update-parent-status="updateParentStatus" />
         </v-list-item>
     </v-list-group>
@@ -43,7 +43,7 @@ import axios from 'axios';
 import type { LazyLoadedNode, Task, TaskList } from '~/commons/Interfaces';
 import { API_BASE_URL } from '~/commons/const';
 
-withDefaults(defineProps<{ index: number, depth?: number }>(), {
+const props = withDefaults(defineProps<{ index: number, depth?: number }>(), {
     depth: 0
 });
 const parent = defineModel('parent', { type: {} as PropType<TaskList>, required: true });
@@ -51,11 +51,13 @@ const task = defineModel('task', { type: {} as PropType<Task>, required: true })
 const emit = defineEmits(['updateParentStatus']);
 
 const store = useLazyLoadingStore();
+const snackbarStore = useSnackbarStore();
 const isLazyLoaded = computed(() => store.isIdLazyLoaded(task.value.id));
 const isTaskLoading = computed(() => store.isTaskLoading(task.value.id));
 const lazyLoadIcon = computed(() => isTaskLoading.value ? "$chevronUp" : "$chevronDown")
 const hasNoChild = computed(() => !task.value.tasks.length && !isLazyLoaded.value)
 const addChildIcon = computed(() => hasNoChild.value ? "$plus" : "$chevronDown")
+
 
 function addTaskAfter(taskId: string) {
     const index = findTaskIndex(parent.value, taskId);
@@ -108,7 +110,7 @@ function updateStatus(taskId: string) {
     else {
         const areChildsDone = checkChildsStatusDone(task);
         if (!areChildsDone) {
-            alert("NOT authorized");
+            snackbarStore.setContent("You must validate children task before validating parent task.", SNACKBAR_TIMEOUT, "error");
             return;
         }
         task.isDone = true;
@@ -146,7 +148,7 @@ async function loadChild(taskId: string) {
         const result = await axios.get(`${API_BASE_URL}/task/${taskId}/load`);
         if (!result || !result.data) {
             console.error("No result or no data, see server logs");
-            alert(`Error while loading sub tasks of ${taskId}`);
+            snackbarStore.setContent(`Error while loading sub tasks of ${taskId}`, SNACKBAR_TIMEOUT, "error");
             return;
         }
         const node = result.data as LazyLoadedNode;
@@ -154,7 +156,7 @@ async function loadChild(taskId: string) {
         task.value.tasks = task.value.tasks.concat(node.tree.tasks);
     } catch (e) {
         console.error(e);
-        alert(`Error while loading sub tasks of ${taskId}`);
+        snackbarStore.setContent(`Error while loading sub tasks of ${taskId}`, SNACKBAR_TIMEOUT, "error");
     }
     finally {
         store.endIdLoading();

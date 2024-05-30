@@ -1,6 +1,8 @@
 # Task List
 
+Click on thumbnail to see it in action
 
+[![Thumbnail Image](./doc/App_running_thumbnail.png)](./doc/App_running.gif)]
 
 ## Overview
 
@@ -21,9 +23,56 @@ Monitoring :
   - OS / containers exporters : [cAdvisor](https://github.com/google/cadvisor) and [node-exporter](https://github.com/prometheus/node_exporter)
   - Celery monitoring : [flower](https://flower.readthedocs.io)
 
+## Architecture Diagram
+
+```mermaid
+flowchart TD
+
+backend[Docker: FastAPI Cachetools Celery Flower
+debug: 5678]
+frontend[Vue3-Pinia
+http: 8000]
+grafana[Docker: Grafana
+http: 3000]
+celery[Celery
+debug: 6900]
+Prometheus[Docker: Prometheus
+http: 9090]
+nodeExporter[Docker: node-exporter]
+cAdvisor[Docker: cAdvisor]
+RabbitMQ[Docker: RabbitMQ
+http: 15672]
+Flower[flower
+http: 5555]
+Swagger[Swagger
+http: 5000]
+OS[ OS metrics]
+
+  subgraph Application
+    frontend --> backend
+    Swagger --> backend
+    backend -.-> celery
+    
+    celery --> RabbitMQ
+    celery --> rpc
+end
+  subgraph Monitoring
+    grafana --> Prometheus
+    Flower --> celery
+    backend -.-> Flower
+    Prometheus --> cAdvisor
+    Prometheus --> nodeExporter
+    subgraph Metrics collector
+    cAdvisor --> backend
+    nodeExporter --> OS
+    end
+    end
+
+```
+
 ## Functionalities
 
-Recursive task manager, with import / export JSON file and lazy loading management.
+Recursive task manager, with import / export JSON file and server-side lazy loading management.
 
  - Running advices :
    - After [starting server services](./README#start-up), [logs the backend](./README#logs) to know when the application will be ready.
@@ -34,6 +83,8 @@ If you want to play with monitoring :
   1. Go to Grafana administration, and visualize `Docker Containers ` and `Docker Host` to monitor respectively Docker containers performances and host performances.
   2. You can can generate your own random task tree via the `/generate` endpoint. The file will be generated in `./data`
   3. Importing the generated JSON file, or any other heavy JSON file.
+
+
 
 ## Setup
 

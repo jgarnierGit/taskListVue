@@ -46,15 +46,20 @@ const jobOutOfRetry = ref(false);
 watch(jobResult, (newValue) => {
     if (newValue) {
         if (newValue.status === 'SUCCESS' && newValue.data) {
+            snackbarStore.setContent("Import done", SNACKBAR_TIMEOUT, "success");
             store.resetLazyLoadedIdsWith(newValue.data.lazyLoadedIds);
+            jobStore.reset();
             replaceRoot(newValue.data.tree);
         }
-        if (newValue.status === 'RETRY_ENDS') {
+        else if (newValue.status === 'RETRY_ENDS') {
             jobOutOfRetry.value = true;
         }
-        if (newValue.status === 'ERROR') {
+        else if (newValue.status === 'ERROR') {
             store.endIdLoading();
             snackbarStore.setContent("Error while importing JSON file, check the logs", SNACKBAR_TIMEOUT, "error");
+        }
+        else if (newValue.status === 'PENDING') {
+            snackbarStore.setContent("Import still pending...", SNACKBAR_TIMEOUT, "info");
         }
     }
 })
@@ -73,7 +78,7 @@ async function importTasks(event: Event) {
     const file = target.files?.[0];
 
     if (!file) {
-        alert('No file selected');
+        snackbarStore.setContent("No file selected", SNACKBAR_TIMEOUT, "error");
         return;
     }
 
@@ -141,16 +146,15 @@ function parseTasks(json: string) {
         id: z.string(),
         name: z.string(),
         isDone: z.boolean(),
-        tasks: z.object({}).array().optional()
+        tasks: z.object({}).array().default([])
     });
     type TaskType = z.infer<typeof task & { tasks: TaskType[] }>;
     const taskSchema: z.ZodType<TaskType> = task.extend({
-        tasks: z.lazy(() => task.array()),
+        tasks: z.lazy(() => taskSchema.array()),
     });
     const RootTaskSchema = z.object({ tasks: z.array(taskSchema) });
     const parseData = JSON.parse(json);
     return RootTaskSchema.parse(parseData) as TaskList;
-
 }
 
 function replaceRoot(newTree: TaskList) {

@@ -46,11 +46,13 @@ const callback = (result: JobResultType) => {
             snackbarStore.setContent(`File ${result.data} generated successfully`, SNACKBAR_LONG_TIMEOUT, "success");
         }
         if (result.status === 'RETRY_ENDS') {
-            console.log("RETRY_ENDS");
             snackbarStore.setContent("Generating file is taking longer than expected, you can force refresh or check the logs", SNACKBAR_TIMEOUT, "warning");
         }
         if (result.status === 'ERROR') {
             snackbarStore.setContent("Error while generating JSON file, check the logs", SNACKBAR_TIMEOUT, "error");
+        }
+        if (result.status === 'PENDING') {
+            snackbarStore.setContent("Generation still pending...", SNACKBAR_TIMEOUT, "info");
         }
     }
 }
@@ -64,7 +66,7 @@ async function generateTree() {
         emit('processing', jobId.value);
     } catch (error) {
         console.error(error);
-        alert(`Error while generating tree, read the logs`);
+        snackbarStore.setContent("Error while generating tree, read the logs", SNACKBAR_TIMEOUT, "error");
     }
 
 }
